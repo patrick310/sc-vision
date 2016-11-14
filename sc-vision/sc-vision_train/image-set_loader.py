@@ -84,3 +84,5 @@ class CV2ImageLoader(object):
 
     def get_images(self):
         return self.images
+
+#EOF
