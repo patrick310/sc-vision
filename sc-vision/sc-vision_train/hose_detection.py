@@ -5,7 +5,6 @@ import numpy
 from Loader import *
 from keras.utils import np_utils
 
-
 def load_data(img_rows, img_cols):
     asd_l = CV2ImageLoader(path = 'infrared_data/asd', img_size = (img_rows, img_cols), gray = True, count  = 10)
     asd_imgs = asd_l.load_images_from_path()
