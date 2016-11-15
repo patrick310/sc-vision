@@ -25,12 +25,3 @@ def sharpen_image(image, radius, percent, threshold):
                     percent = percent,
                     threshold = threshold)
     return image.filter(filter)
-
-im = open_image_from_file('childphoto.jpg')
-gray_then_scale = scale_down_image(gray_image(im), (256, 256))
-scale_then_gray = gray_image(scale_down_image(im, (256, 256)))
-gray_then_scale.save("gray_then_scale.jpg")
-scale_then_gray.save("scale_then_gray.jpg")
-
-sharped = sharpen_image(gray_then_scale, radius = 3, percent = 150, threshold = 4)
-sharped.save("sharped.jpg")
