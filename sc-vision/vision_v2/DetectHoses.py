@@ -1,2 +1,1 @@
-from VisionResources import imageprocessor
-from VisionResources.testfolder import name
+from VisionResources import capture_to_file
