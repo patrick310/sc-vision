@@ -1,4 +1,4 @@
-from VisionResources imageprocessor
+from VisionResources.imageprocessing import open_image_from_file
 
 orig = open_image_from_file('original.jpg')
 gray = gray_image(orig)

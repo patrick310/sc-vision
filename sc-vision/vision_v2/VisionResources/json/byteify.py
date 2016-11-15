@@ -1,6 +1,4 @@
-import json
-
-def _byteify(input):
+def byteify(input):
     if isinstance(input, dict):
         return {_byteify(key): _byteify(value)
             for key, value in input.iteritems()}
@@ -10,9 +8,3 @@ def _byteify(input):
         return input.encode('utf-8')
     else:
         return input
-
-def load_dictionary(filepath):
-    with open(filepath, "r") as f:
-        dictionary = json.load(f)
-    dictionary = _byteify(dictionary)
-    return dictionary

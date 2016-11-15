@@ -1,1 +1,1 @@
-from VisionResources import capture_to_file
+from VisionResources.imageprocessing import gray_image
