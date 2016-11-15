@@ -1,4 +1,4 @@
-import imageprocessor
+from imageprocessor import *
 
 orig = open_image_from_file('original.jpg')
 gray = gray_image(orig)

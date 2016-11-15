@@ -4,6 +4,7 @@ from PIL.Image import LANCZOS
 from PIL import ImageFilter
 from PIL import ImageOps
 import io
+import numpy as np
 
 def open_image_from_stream(stream):
     # Make sure to rewind stream to beginning of data.
