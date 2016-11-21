@@ -52,10 +52,10 @@ def model(X_train, Y_train, X_test, Y_test):
     model.add(Flatten())
 
     if conditional({{choice(['extra', 'no_extra'])}}) == 'extra':
-        model.add(Dense({{choice([100, 200])}}))
+        model.add(Dense({{choice([100, 200, 300])}}))
         model.add(Activation('relu'))
 
-    model.add(Dense(60))
+    model.add(Dense({{choice([60, 120, 180])}}))
     model.add(Activation('relu'))
     model.add(Dropout({{uniform(0, 1)}}))
     model.add(Dense(4))

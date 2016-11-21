@@ -35,6 +35,6 @@
   },
 
   "hyperas" : {
-    "max_evals" : 10
+    "max_evals" : 100
   }
 }
