@@ -19,11 +19,11 @@
     "class_mode" : "categorical",
 
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 7373,
+    "nb_test_images" : 7324,
     "test_dir" : "all_data/train",
 
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 64,
+    "nb_val_images" : 113,
     "val_dir" : "all_data/validation"
   },
 
