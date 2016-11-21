@@ -30,8 +30,6 @@ def data():
     X_train = X_train.reshape(X_train.shape[0], 1, configs.img_height, configs.img_width)
     X_test = X_test.reshape(X_test.shape[0], 1 , configs.img_height, configs.img_width)
 
-    print X_train.shape, Y_train.shape, X_test.shape, Y_test.shape
-
     return X_train, Y_train, X_test, Y_test
 
 def model(X_train, Y_train, X_test, Y_test):
