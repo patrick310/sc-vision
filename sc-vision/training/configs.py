@@ -41,5 +41,6 @@ val_dir = configs["preprocessing"]["val_dir"]
 batch_size = configs["training"]["batch_size"]
 nb_epoch = configs["training"]["nb_epoch"]
 verbose = configs["training"]["verbose"]
+print_summary = configs["training"]["print_summary"]
 
 max_evals = configs["hyperas"]["max_evals"]

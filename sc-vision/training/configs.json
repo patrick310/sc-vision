@@ -30,7 +30,8 @@
   "training" : {
     "batch_size" : 20,
     "nb_epoch"   : 10,
-    "verbose" : true
+    "verbose" : true,
+    "print_summary" : false
   },
 
   "hyperas" : {

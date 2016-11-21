@@ -68,7 +68,9 @@ def model(X_train, Y_train, X_test, Y_test):
         optimizer = {{choice(['rmsprop', 'adam', 'sgd'])}},
         #optimizer = 'rmsprop',
         metrics=['accuracy'])
-    model.summary()
+
+    if configs.print_summary:
+        model.summary()
 
     model.fit(X_train, Y_train,
         batch_size = configs.batch_size,
