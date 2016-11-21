@@ -1,0 +1,39 @@
+{
+  "global" : {
+  "nb_classes" : 4,
+  "img_width" : 156,
+  "img_height" : 156,
+  "model_save_name" : "MY_MODEL.hdf5"
+  },
+
+  "preprocessing" : {
+    "shear_range" : 0.1,
+    "zoom_range" : 0.1,
+    "zca_whitening" : false,
+    "rotation_range" : 5,
+    "width_shift_range" : 0.1,
+    "height_shift_range" : 0.1,
+    "vertical_flip" : false,
+    "horizontal_flip" : false,
+    "color_mode" : "grayscale",
+    "class_mode" : "categorical",
+
+    "test_fname" : "test_data.hdf5",
+    "nb_test_images" : 7373,
+    "test_dir" : "all_data/train",
+
+    "val_fname"  : "val_data.hdf5",
+    "nb_val_images" : 64,
+    "val_dir" : "all_data/validation"
+  },
+
+  "training" : {
+    "batch_size" : 20,
+    "nb_epoch"   : 10,
+    "verbose" : true
+  },
+
+  "hyperas" : {
+    "max_evals" : 10
+  }
+}
