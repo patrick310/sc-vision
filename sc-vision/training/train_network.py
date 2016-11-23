@@ -45,18 +45,22 @@ def model(X_train, Y_train, X_test, Y_test):
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        model.add(Convolution2D(64, 3, 3))
+        model.add(Convolution2D(64, 3, 3, input_shape = input_shape))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
     model.add(Flatten())
 
+    model.add(Dense({{choice([75, 100])}}))
+    model.add(Activation('relu'))
+
     if conditional({{choice(['extra', 'no_extra'])}}) == 'extra':
-        model.add(Dense({{choice([100, 200, 300])}}))
+        model.add(Dense(50))
         model.add(Activation('relu'))
 
-    model.add(Dense({{choice([60, 120, 180])}}))
+    model.add(Dense({{choice([10, 20, 30])}}))
     model.add(Activation('relu'))
+
     model.add(Dropout({{uniform(0, 1)}}))
     model.add(Dense(4))
     model.add(Activation('sigmoid'))
@@ -64,7 +68,6 @@ def model(X_train, Y_train, X_test, Y_test):
     model.compile(
         loss='categorical_crossentropy',
         optimizer = {{choice(['rmsprop', 'adam', 'sgd'])}},
-        #optimizer = 'rmsprop',
         metrics=['accuracy'])
 
     if configs.print_summary:

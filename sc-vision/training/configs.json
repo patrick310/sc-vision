@@ -28,13 +28,13 @@
   },
 
   "training" : {
-    "batch_size" : 20,
-    "nb_epoch"   : 10,
+    "batch_size" : 5,
+    "nb_epoch"   : 5,
     "verbose" : true,
-    "print_summary" : false
+    "print_summary" : true
   },
 
   "hyperas" : {
-    "max_evals" : 100
+    "max_evals" : 25
   }
 }
