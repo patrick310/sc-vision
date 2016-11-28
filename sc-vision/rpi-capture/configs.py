@@ -42,3 +42,5 @@ image_descriptor = configs["image_descriptor"]
 save_folder = configs["save_folder"]
 
 capture_delay = configs["capture_delay"]
+
+nb_classes = configs["nb_classes"]

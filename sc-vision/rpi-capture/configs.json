@@ -27,5 +27,7 @@
 
   "save_folder" : "/gathered_data/",
 
-  "capture_delay" : 1.0
+  "capture_delay" : 1.0,
+
+  "nb_classes" : 4
 }

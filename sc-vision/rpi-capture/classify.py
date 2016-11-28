@@ -57,6 +57,9 @@ def process_image(image_packet):
             # Gets the directory name of the class the image is most likely to be.
             def get_dir_name():
                 names = sorted(os.listdir(os.getcwd() + configs.save_folder))
+                if len(names) != configs.nb_classes:
+                    logging.critical("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
+                    raise ValueError("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
                 return names[index]
 
             try:
