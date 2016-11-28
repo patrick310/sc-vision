@@ -25,8 +25,8 @@ time_limit_hours = configs["time_limit"]["hours"]
 time_limit_minutes = configs["time_limit"]["minutes"]
 time_limit_seoncds = configs["time_limit"]["seconds"]
 
-photo_limit_enabled = configs["photo_limit"]["enabled"]
-photo_limit_count = configs["photo_limit"]["count"]
+image_limit_enabled = configs["image_limit"]["enabled"]
+image_limit_count = configs["image_limit"]["count"]
 
 GPIO_enabled = configs["GPIO"]["enabled"]
 power_pin = configs["GPIO"]["power"]
