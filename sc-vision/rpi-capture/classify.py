@@ -59,7 +59,10 @@ def process_image(image_packet):
                 names = sorted(os.listdir(os.getcwd() + configs.save_folder))
                 if len(names) != configs.nb_classes:
                     logging.critical("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
-                    raise ValueError("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
+                    global ERROR_FLAG
+                    error_lock.acquire()
+                    ERROR_FLAG = True
+                    error_lock.release()
                 return names[index]
 
             try:
@@ -166,7 +169,15 @@ def loop():
     # condition is met such as the battery being almost dead or the system is
     # out of memory, it will return True; otherwise False.
     def examine_conditions():
-        pass
+        # See if a critical error occured in a spawned thread.
+        global ERROR_FLAG
+        global error_lock
+        error_lock.acquire()
+        if ERROR_FLAG:
+            return True
+        error_lock.release()
+
+        return False
 
     global IMAGE_COUNT
     global PROGRAM_START_TIME
@@ -229,6 +240,10 @@ def setup():
         size = (configs.img_width, configs.img_height)
         global PROGRAM_START_TIME
         PROGRAM_START_TIME = datetime.datetime.fromtimestamp(time.time())
+        global ERROR_FLAG
+        ERROR_FLAG = False
+        global error_lock
+        error_lock = threading.Lock()
         logging.debug("Fininshed setting up global variables.")
     except Exception as err:
         logging.error("Failed to set up all global variables.")
