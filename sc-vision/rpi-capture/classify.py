@@ -46,7 +46,7 @@ def process_image(image):
                 save_lock.acquire()
                 global PHOTO_COUNT
                 image.save(os.getcwd() + configs.save_folder + "/" + get_dir_name() + "/" + configs.image_descriptor + str(PHOTO_COUNT) + ".jpeg")
-                PHOTO_COUNT += 1
+                #PHOTO_COUNT += 1
                 save_lock.release()
             except Exception as err:
                 save_lock.release()
@@ -133,6 +133,7 @@ def loop():
         while not photo_limit_reached(PHOTO_COUNT) and not time_limit_reached(PROGRAM_START_TIME):
             start = datetime.datetime.fromtimestamp(time.time())
             image = capture_image()
+            PHOTO_COUNT += 1
             process_image(image)
             diff = datetime.datetime.fromtimestamp(time.time()) - start
             print diff.total_seconds(), configs.capture_delay
@@ -149,10 +150,11 @@ logging.basicConfig(
     datefmt='%m/%d/%Y %I:%M:%S%p',
     level = logging.DEBUG)
 logging.info('starting')
-
+get_power_source_update()
 setup_GPIO()
 PHOTO_COUNT = 0
 threads = list()
 model = load_model(configs.model_filepath)
 size = (configs.img_width, configs.img_height)
 PROGRAM_START_TIME = datetime.datetime.fromtimestamp(time.time())
+loop()
