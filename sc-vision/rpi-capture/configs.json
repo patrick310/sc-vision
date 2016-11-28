@@ -1,0 +1,31 @@
+{
+  "img_size" : {
+    "width"  : 156,
+    "height" : 156
+  },
+  "time_limit" : {
+    "enabled" : false,
+    "hours"   : 0.0,
+    "minutes" : 0.0,
+    "seconds" : 10.0
+  },
+  "photo_limit" : {
+    "enabled" : true,
+    "count"   : 5
+  },
+  "GPIO" : {
+    "enabled" : true,
+    "power"      : 13,
+    "camera"     : 19,
+    "error"      : 26,
+    "battery"    : 16,
+    "buzzer"     : 20,
+    "light_ring" : 21
+  },
+  "model_filepath"   : "MY_MODEL.hdf5",
+  "image_descriptor" : "image_",
+
+  "save_folder" : "/gathered_data/",
+
+  "capture_delay" : 1.0
+}
