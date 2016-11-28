@@ -63,6 +63,7 @@ def process_image(image_packet):
                     error_lock.acquire()
                     ERROR_FLAG = True
                     error_lock.release()
+
                 return names[index]
 
             try:
