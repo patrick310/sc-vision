@@ -28,7 +28,6 @@ time_limit_seoncds = configs["time_limit"]["seconds"]
 image_limit_enabled = configs["image_limit"]["enabled"]
 image_limit_count = configs["image_limit"]["count"]
 
-GPIO_enabled = configs["GPIO"]["enabled"]
 power_pin = configs["GPIO"]["power"]
 camera_pin = configs["GPIO"]["camera"]
 error_pin = configs["GPIO"]["error"]
@@ -44,3 +43,5 @@ save_folder = configs["save_folder"]
 capture_delay = configs["capture_delay"]
 
 nb_classes = configs["nb_classes"]
+
+buzz_classes = configs["buzz_classes"]
