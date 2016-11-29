@@ -59,11 +59,11 @@ def process_image(image_packet):
                 names = sorted(os.listdir(os.getcwd() + configs.save_folder))
                 if len(names) != configs.nb_classes:
                     logging.critical("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
-                    global ERROR_FLAG
-                    error_lock.acquire()
-                    ERROR_FLAG = True
-                    error_lock.release()
-
+                    global CRITICAL_FLAG
+                    critical_lock.acquire()
+                    CRITICAL_FLAG = True
+                    critical_lock.release()
+                    raise IOError("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
                 return names[index]
 
             try:
@@ -134,6 +134,7 @@ def capture_image(
         ):
     logging.debug("Capturing image.")
     GPIO.output(configs.camera_pin, GPIO.HIGH)
+    GPIO.output(configs.light_ring_pin, GPIO.HIGH)
     stream = io.BytesIO()
     with picamera.PiCamera() as cam:
         cam.resolution = resolution
@@ -141,6 +142,7 @@ def capture_image(
         time.sleep(warmup_delay)
         cam.capture(stream, format = format)
         cam.close()
+    GPIO.output(configs.light_ring_pin, GPIO.LOW)
     stream.seek(0)
     image = Image.open(stream)
     GPIO.output(configs.camera_pin, GPIO.LOW)
@@ -156,8 +158,16 @@ def cleanup():
         for thread in threads:
             thread.join()
     join_threads()
-    GPIO.cleanup()
+
     logging.info("All clean.")
+    logging.info("Idling.")
+    try:
+        while True:
+            GPIO.output(configs.power_pin, GPIO.HIGH)
+            time.sleep(1)
+            GPIO.output(configs.power_pin, GPIO.HIGH)
+    except Exception as err:
+        GPIO.cleanup()
 
 # The main program loop.
 def loop():
@@ -178,6 +188,12 @@ def loop():
             return True
         error_lock.release()
 
+        global CRITICAL_FLAG
+        global critical_lock
+        critical_lock.acquire()
+        if CRITICAL_FLAG:
+            return True
+        critical_lock.release()
         return False
 
     global IMAGE_COUNT
@@ -192,8 +208,8 @@ def loop():
             process_image(image_packet)
             if examine_conditions():
                 logging.critical("Critical condition reached.")
+                GPIO.output(configs.error_pin, GPIO.HIGH)
                 cleanup()
-                return
             while not capture_delay_reached(timer_start):
                 pass
         logging.info("Exiting main loop b/c exit condition reached.")
@@ -229,22 +245,35 @@ def setup():
             GPIO.setup(configs.light_ring_pin, GPIO.OUT)
         setup_GPIO()
 
+        GPIO.output(configs.power_pin, GPIO.HIGH)
+
         global IMAGE_COUNT
         IMAGE_COUNT = 0
+
         global threads
         threads = list()
+
         global model
         logging.debug("Loading model.")
         model = load_model(configs.model_filepath)
         logging.debug("Model loaded.")
+
         global size
         size = (configs.img_width, configs.img_height)
+
         global PROGRAM_START_TIME
         PROGRAM_START_TIME = datetime.datetime.fromtimestamp(time.time())
+
         global ERROR_FLAG
         ERROR_FLAG = False
         global error_lock
         error_lock = threading.Lock()
+
+        global CRITICAL_FLAG
+        CRITICAL_FLAG = False
+        global critical_lock
+        critical_lock = threading.Lock()
+
         logging.debug("Fininshed setting up global variables.")
     except Exception as err:
         logging.error("Failed to set up all global variables.")
