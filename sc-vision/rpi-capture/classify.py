@@ -65,7 +65,7 @@ def process_image(image_packet):
                     critical_lock.release()
                     raise IOError("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
                 return names[index]
-
+            # Attempt to process the image.
             try:
                 image_name = os.getcwd() + configs.save_folder + "/" + get_dir_name() + "/" + configs.image_descriptor + str(image_number) + ".jpeg"
                 image.save(image_name)
@@ -73,7 +73,7 @@ def process_image(image_packet):
                 logging.debug("Image processsed and saved (" + str(threading.current_thread()) + ").")
             except Exception as err:
                 logging.error("Image failed to be processsed (" + str(threading.current_thread()) + ").")
-                raise err
+                return
 
         # Copy the image to work with so that the full-size image can be
         # saved to the appropriate directory.
@@ -158,16 +158,28 @@ def cleanup():
         for thread in threads:
             thread.join()
     join_threads()
-
+    logging.debug("All spawned threads joined.")
+    logging.debug("Clearing GPIO pins.")
+    GPIO.cleanup()
     logging.info("All clean.")
-    logging.info("Idling.")
+    logging.info(" --- Exiting Program --- ")
+
+# This is called if a critical error occurs.  It enables the error LED
+# and loops forever, alternating the power LED to signal to the user something
+# has happened.
+def critical_exit():
+    logging.debug("Starting critical exit.")
+    GPIO.output(configs.error_pin, GPIO.HIGH)
     try:
+        logging.debug("Idling power LED.")
         while True:
-            GPIO.output(configs.power_pin, GPIO.HIGH)
+            GPIO.output(configs.power_pin, GPIO.LOW)
             time.sleep(1)
             GPIO.output(configs.power_pin, GPIO.HIGH)
     except Exception as err:
-        GPIO.cleanup()
+        logging.debug("Going to cleanup.")
+        cleanup()
+        raise err
 
 # The main program loop.
 def loop():
@@ -185,6 +197,7 @@ def loop():
         global error_lock
         error_lock.acquire()
         if ERROR_FLAG:
+            error_lock.release()
             return True
         error_lock.release()
 
@@ -192,6 +205,7 @@ def loop():
         global critical_lock
         critical_lock.acquire()
         if CRITICAL_FLAG:
+            critical_lock.release()
             return True
         critical_lock.release()
         return False
@@ -207,9 +221,8 @@ def loop():
             IMAGE_COUNT += 1
             process_image(image_packet)
             if examine_conditions():
-                logging.critical("Critical condition reached.")
-                GPIO.output(configs.error_pin, GPIO.HIGH)
-                cleanup()
+                logging.critical("Critical condition or error reached.")
+                critical_exit()
             while not capture_delay_reached(timer_start):
                 pass
         logging.info("Exiting main loop b/c exit condition reached.")
@@ -227,7 +240,7 @@ def setup():
         datefmt='%m/%d/%Y %I:%M:%S%p',
         level = logging.DEBUG)
 
-    logging.info(" --- Beginning Program ---")
+    logging.info(" --- Beginning Program --- ")
 
     logging.debug("Setting up global variables.")
     try:
@@ -274,7 +287,7 @@ def setup():
         global critical_lock
         critical_lock = threading.Lock()
 
-        logging.debug("Fininshed setting up global variables.")
+        logging.debug("Finished setting up global variables.")
     except Exception as err:
         logging.error("Failed to set up all global variables.")
         raise err

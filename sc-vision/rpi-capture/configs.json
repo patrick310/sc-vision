@@ -11,7 +11,7 @@
   },
   "image_limit" : {
     "enabled" : true,
-    "count"   : 5
+    "count"   : 100
   },
   "GPIO" : {
     "enabled" : true,
@@ -27,7 +27,7 @@
 
   "save_folder" : "/gathered_data/",
 
-  "capture_delay" : 1.0,
+  "capture_delay" : 5.0,
 
   "nb_classes" : 4
 }
