@@ -52,6 +52,7 @@ def process_image(image_packet):
         # image is returned (a copy--the original image is not affected).
         def reformat_image(image):
             return ImageOps.grayscale(image.resize(size))
+        """
         # Saves an image to the directory of the class it is most likely to be.
         def save_image(index):
             # Gets the directory name of the class the image is most likely to be.
@@ -74,6 +75,17 @@ def process_image(image_packet):
             except Exception as err:
                 logging.error("Image failed to be processsed (" + str(threading.current_thread()) + ").")
                 return
+        """
+        def buzz(index):
+            if index in configs.buzz_classes:
+                print "buzzing for " + str(index)
+                count = 0
+                while count != 2:
+                    GPIO.output(configs.buzzer_pin, GPIO.HIGH)
+                    time.sleep(0.5)
+                    GPIO.output(configs.buzzer_pin, GPIO.LOW)
+                    count += 1
+            return
 
         # Copy the image to work with so that the full-size image can be
         # saved to the appropriate directory.
@@ -81,7 +93,10 @@ def process_image(image_packet):
         arr = format_image_for_network(image_copy)
         prediction = get_image_prediction(arr)
         index = highest_index(prediction)
+        """
         save_image(index)
+        """
+        buzz(index)
     # Process the image_packet in another thread besides the main thread.
     thread = threading.Thread(target = _process_image, args = ([image_packet]))
     thread.start()
@@ -89,6 +104,41 @@ def process_image(image_packet):
     # completes its operation before the main thread stops execution.
     global threads
     threads.append(thread)
+
+# Determines whether the time limit is reached as specified by the
+# time limit values in the configs.json file.
+def time_limit_reached(program_start_time):
+    # Returns the current time.
+    def now():
+        return datetime.datetime.fromtimestamp(time.time())
+    # Returns the total seconds elapsed between two times.
+    def difference_between_times(start_time, stop_time = None):
+        if stop_time is None:
+            stop_time = now()
+        time_difference = stop_time - start_time
+        seconds_elapsed = time_difference.total_seconds()
+        return seconds_elapsed
+    # Calculates the total amount of time the program is supposed to run.
+    def calculate_runtime():
+        runtime = 0.0
+        runtime += float(configs.time_limit_hours) * 3600.0
+        runtime += float(configs.time_limit_minutes) * 60.0
+        runtime += float(configs.time_limit_seoncds)
+        return runtime
+
+    if configs.time_limit_enabled:
+        seconds_elapsed = difference_between_times(program_start_time)
+        return seconds_elapsed >= calculate_runtime()
+    else:
+        return False
+
+# Determines if the image capture limit is reached as specified by the
+# configs.json file.
+def image_limit_reached(current_count):
+    if configs.image_limit_enabled:
+        return current_count >= configs.image_limit_count
+    else:
+        return False
 
 # Captures an image and returns a PIL image object.
 def capture_image(
@@ -114,10 +164,93 @@ def capture_image(
     logging.debug("Image captured.")
     return image
 
+# Joins all threads to ensure that all captured images are processed and
+# turns off all GPIO pins.
+def cleanup():
+    logging.info("Cleaning up.")
+    def join_threads():
+        global threads
+        for thread in threads:
+            thread.join()
+    join_threads()
+    logging.debug("All spawned threads joined.")
+    logging.debug("Clearing GPIO pins.")
+    GPIO.cleanup()
+    logging.info("All clean.")
+    logging.info(" --- Exiting Program --- ")
+
+# This is called if a critical error occurs.  It enables the error LED
+# and loops forever, alternating the power LED to signal to the user something
+# has happened.
+def critical_exit():
+    logging.debug("Starting critical exit.")
+    GPIO.output(configs.error_pin, GPIO.HIGH)
+    try:
+        logging.debug("Idling power LED.")
+        while True:
+            GPIO.output(configs.power_pin, GPIO.LOW)
+            time.sleep(1)
+            GPIO.output(configs.power_pin, GPIO.HIGH)
+    except Exception as err:
+        logging.debug("Going to cleanup.")
+        cleanup()
+        raise err
+
+# The main program loop.
+def loop():
+    # Determines if the capture delay-- the time in between image captures--
+    # has been reached.
+    def capture_delay_reached(timer_start):
+        return (datetime.datetime.fromtimestamp(time.time()) - timer_start).total_seconds() >= configs.capture_delay
+    # A self-diagnostic function.  Uses the MoPi API to check the battery level
+    # and checks to see if memory is getting low on the SD card.  If a critical
+    # condition is met such as the battery being almost dead or the system is
+    # out of memory, it will return True; otherwise False.
+    def examine_conditions():
+        # See if a critical error occured in a spawned thread.
+        global ERROR_FLAG
+        global error_lock
+        error_lock.acquire()
+        if ERROR_FLAG:
+            error_lock.release()
+            return True
+        error_lock.release()
+
+        global CRITICAL_FLAG
+        global critical_lock
+        critical_lock.acquire()
+        if CRITICAL_FLAG:
+            critical_lock.release()
+            return True
+        critical_lock.release()
+        return False
+
+    global IMAGE_COUNT
+    global PROGRAM_START_TIME
+    logging.info("Starting main loop.")
+    # Loop until a stop condition is met or an error/exception occurs.
+    try:
+        while not image_limit_reached(IMAGE_COUNT) and not time_limit_reached(PROGRAM_START_TIME):
+            timer_start = datetime.datetime.fromtimestamp(time.time())
+            image_packet = (capture_image(), IMAGE_COUNT)
+            IMAGE_COUNT += 1
+            process_image(image_packet)
+            if examine_conditions():
+                logging.critical("Critical condition or error reached.")
+                critical_exit()
+            while not capture_delay_reached(timer_start):
+                pass
+        logging.info("Exiting main loop b/c exit condition reached.")
+        cleanup()
+    except Exception as err:
+        cleanup()
+        logging.error("Exiting main loop b/c error occured.")
+        print err
+
 def setup():
     # Enable the use of the logging module.
     logging.basicConfig(
-        filename = 'mylog_scan.log',
+        filename = 'mylog.log',
         format = '%(asctime)s : %(levelname)s : %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S%p',
         level = logging.DEBUG)
@@ -174,4 +307,5 @@ def setup():
         logging.error("Failed to set up all global variables.")
         raise err
 
-while True:
+setup()
+loop()
