@@ -68,7 +68,7 @@ def thread_name():
 
 def blink(pin, delay, duration):
     timer_start = now()
-    while difference_between_times(timer_start):
+    while difference_between_times(timer_start) < duration:
         GPIO.output(pin, GPIO.HIGH)
         time.sleep(delay)
         GPIO.output(pin, GPIO.LOW)
@@ -76,7 +76,7 @@ def blink(pin, delay, duration):
 def solid(pin, duration):
     timer_start = now()
     GPIO.output(pin, GPIO.HIGH)
-    while difference_between_times(timer_start):
+    while difference_between_times(timer_start) < duration:
         pass
     GPIO.output(pin, GPIO.LOW)
 
