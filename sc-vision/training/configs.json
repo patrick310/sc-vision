@@ -13,17 +13,17 @@
     "rotation_range" : 5,
     "width_shift_range" : 0.1,
     "height_shift_range" : 0.1,
-    "vertical_flip" : false,
+    "vertical_flip" : true,
     "horizontal_flip" : false,
     "color_mode" : "grayscale",
     "class_mode" : "categorical",
 
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 7324,
+    "nb_test_images" : 12443,
     "test_dir" : "all_data/train",
 
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 113,
+    "nb_val_images" : 127,
     "val_dir" : "all_data/validation"
   },
 

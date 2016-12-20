@@ -1,3 +1,5 @@
+import os
+os.environ['KERAS_BACKEND']='theano'
 import picamera
 import numpy as np
 from PIL import Image, ImageOps
@@ -69,7 +71,7 @@ def process_image(image_packet):
             try:
                 image_name = os.getcwd() + configs.save_folder + "/" + get_dir_name() + "/" + configs.image_descriptor + str(image_number) + ".jpeg"
                 image.save(image_name)
-                logging.info("Saved image: " + image_name)
+                logging.info("Saved image: " + image_name + " to " + get_dir_name())
                 logging.debug("Image processsed and saved (" + str(threading.current_thread()) + ").")
             except Exception as err:
                 logging.error("Image failed to be processsed (" + str(threading.current_thread()) + ").")

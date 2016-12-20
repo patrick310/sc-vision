@@ -17,9 +17,9 @@
     "power"      : 13,
     "camera"     : 19,
     "error"      : 26,
-    "battery"    : 16,
+    "battery"    : 6,
     "buzzer"     : 20,
-    "light_ring" : 21
+    "light_ring" : 12
   },
   "model_filepath"   : "MY_MODEL.hdf5",
   "image_descriptor" : "image_",

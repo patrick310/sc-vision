@@ -90,7 +90,7 @@ def update_error_LED():
         # Critical error condition takes high priority.
         if CRITICAL.state():
             blink(pin = configs.error_pin, delay = 0.1, duration = 1.0)
-        if ERROR.state():
+        elif ERROR.state():
             blink(pin = configs.error_pin, delay = 0.25, duration = 1.0)
         else:
             continue
@@ -157,5 +157,26 @@ def start_LED_threads():
     logging.debug("LED threads appended go global thread list.")
     logging.debug("Exiting 'start_LED_threads()' in thread: " + thread_name())
 
+def time_limit_reached(program_start_time):
+    # Returns the total seconds elapsed between two times.
+    def difference_between_times(start_time, stop_time = None):
+        if stop_time is None:
+            stop_time = now()
+        time_difference = stop_time - start_time
+        seconds_elapsed = time_difference.total_seconds()
+        return seconds_elapsed
+    # Calculates the total amount of time the program is supposed to run.
+    def calculate_runtime():
+        runtime = 0.0
+        runtime += float(configs.time_limit_hours) * 3600.0
+        runtime += float(configs.time_limit_minutes) * 60.0
+        runtime += float(configs.time_limit_seoncds)
+        return runtime
+
+    if configs.time_limit_enabled:
+        seconds_elapsed = difference_between_times(program_start_time)
+        return seconds_elapsed >= calculate_runtime()
+    else:
+        return False
 
 # EOF

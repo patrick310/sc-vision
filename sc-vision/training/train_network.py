@@ -62,7 +62,7 @@ def model(X_train, Y_train, X_test, Y_test):
     model.add(Activation('relu'))
 
     model.add(Dropout({{uniform(0, 1)}}))
-    model.add(Dense(4))
+    model.add(Dense(configs.nb_classes))
     model.add(Activation('sigmoid'))
 
     model.compile(

@@ -1,3 +1,3 @@
-# sc-vision
+# SC-VISION
 # A Raspberry Pi vision project.
-# EOF
+## Necessary  
