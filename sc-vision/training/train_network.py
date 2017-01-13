@@ -15,6 +15,7 @@ import numpy as np
 #[TODO] Use scikitlearn test_train split to split the data in train_network module
 #[TODO] Remove all requirements to hard-code image counts
 #[TODO] Add test_train split ratio to config file
+#[NOTE] C and E can delete this to demonstrate GitHub knowledge!!
 
 def data():
 	#Takes h5py compacted data and returns x and y test and train numpy arrays
