@@ -1,3 +1,6 @@
+#[TODO] Eliminate the need for nb_classes by counting number of folders with images inside in generate_data.py
+#[TODO] Add training hyper-parameters to Hyperas control and remove hard-coding
+#[TODO] Combine test and val flows... refer to scikit test/val split todo in train_network
 {
   "global" : {
   "nb_classes" : 4,
