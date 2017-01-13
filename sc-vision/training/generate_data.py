@@ -13,7 +13,7 @@ test_datagen = ImageDataGenerator(
     vertical_flip = configs.vertical_flip,
     horizontal_flip = configs.horizontal_flip,
 )
-
+#[TODO] Combine test and val flows... refer to scikit test/val split todo in train_network
 test_gen = test_datagen.flow_from_directory(
     directory = configs.test_dir,
     target_size = (configs.img_width, configs.img_height),
