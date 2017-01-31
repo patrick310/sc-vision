@@ -158,6 +158,7 @@ def cameraLoop():
         global duration
         time.sleep(duration)
         print(TAB + 'Capturing ' + str(name))
+	cam.capture(name)
         global photosTaken
         photosTaken += 1
     except:
