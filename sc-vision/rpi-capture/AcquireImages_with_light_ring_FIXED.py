@@ -11,7 +11,7 @@ import RPi.GPIO as GPIO
 sys.setrecursionlimit(1000000)
 
 resolution = (3280, 2464)
-contrast = 99
+contrast = -99
 cam = picamera.PiCamera()
 cam.resolution = resolution
 cam.contrast = contrast
