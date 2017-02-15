@@ -11,10 +11,10 @@ import RPi.GPIO as GPIO
 sys.setrecursionlimit(1000000)
 
 resolution = (3280, 2464)
-contrast = -99
+brightness = 1
 cam = picamera.PiCamera()
 cam.resolution = resolution
-cam.contrast = contrast
+cam.brightness = brightness
 
 duration = 2.5
 saveLoc = '/home/pi/Pictures/'
