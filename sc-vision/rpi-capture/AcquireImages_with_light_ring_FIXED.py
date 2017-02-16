@@ -20,7 +20,7 @@ duration = 2.5
 saveLoc = '/home/pi/Pictures/'
 photoLimit = None
 timeLimit = None
-imageName = 'contrast_image'
+imageName = 'image'
 
 
 startTime = datetime.datetime.now()
