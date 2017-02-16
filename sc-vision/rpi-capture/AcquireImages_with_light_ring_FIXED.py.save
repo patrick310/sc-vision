@@ -31,7 +31,7 @@ NEWL = '\n'
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(configs.light_ring_pin, GPIO.OUT)
+GPIO.setup(configs.light_ring_pin, GPIO.OUTGPIO.setup(configs.light_ring_pin, GPIO.OUT)
 GPIO.output(configs.light_ring_pin, GPIO.LOW)
 def gatherArguments():
     print(NEWL)
