@@ -20,3 +20,23 @@ class RpiCamera(Camera):
     def __init__(self, name):
         self.name = name
         self.camType = "RpiCamera"
+
+
+class TestCamera(Camera):
+    # Simulates a camera and returns a test picture when TestCamera.capture is called
+    def __init__(self, name):
+        self.name = name
+        self.camType = "TestCamera"
+
+    def create_test_image():
+        from io import BytesIO
+        from PIL import Image
+        file = BytesIO()
+        image = Image.new('RGBA', size=(50, 50), color=(155, 0, 0))
+        image.save(file, 'png')
+        file.name = 'test.png'
+        file.seek(0)
+        return file
+
+    def capture(self):
+        return TestCamera.create_test_image()
