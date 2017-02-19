@@ -1,12 +1,13 @@
 #!/bin/bash
 
-import threading
-import picamera
-import time
+import argparse
 import datetime
-import sys, argparse, os, glob
-import configs
-import RPi.GPIO as GPIO
+import glob
+import os
+import sys
+import time
+
+import picamera
 
 sys.setrecursionlimit(1000000)
 
@@ -20,7 +21,6 @@ photoLimit = None
 timeLimit = None
 imageName = 'image'
 
-
 startTime = datetime.datetime.now()
 photosTaken = 0
 
@@ -28,6 +28,7 @@ deleteThreadDone = False
 
 TAB = '\t'
 NEWL = '\n'
+
 
 def gatherArguments():
     print(NEWL)
@@ -114,23 +115,24 @@ def gatherArguments():
     print(NEWL)
 
 
-
 def stopCondition():
     stop = False
 
     global photoLimit
     if photoLimit is not None:
         global photosTaken
-        if(photoLimit == photosTaken):
+        if (photoLimit == photosTaken):
             return True, 'photoLimit'
 
     global timeLimit
     if timeLimit is not None:
         global startTime
         currentTime = datetime.datetime.now() - startTime
-        if((currentTime.seconds / 3600) >= timeLimit):
+        if ((currentTime.seconds / 3600) >= timeLimit):
             return True, 'timeLimit'
     return stop, ''
+
+
 def nextName():
     counter = 0
     global imageName
@@ -144,10 +146,11 @@ def nextName():
             counter += 1
             continue
 
+
 def cameraLoop():
     stop, condition = stopCondition()
 
-    if(stop):
+    if (stop):
         return condition
 
     name = nextName()
@@ -158,16 +161,17 @@ def cameraLoop():
         global duration
         time.sleep(duration)
         print(TAB + 'Capturing ' + str(name))
-	cam.capture(name)
-        global photosTaken
-        photosTaken += 1
-    except:
-        raise
+    cam.capture(name)
+    global photosTaken
+    photosTaken += 1
 
-    try:
-        return cameraLoop()
-    except:
-        raise
+except:
+raise
+
+try:
+    return cameraLoop()
+except:
+    raise
 
 
 def main():
@@ -180,9 +184,9 @@ def main():
     print('Starting camera loop ...')
     try:
         condition = cameraLoop()
-        if(condition is 'photoLimit'):
+        if (condition is 'photoLimit'):
             print('Stop condition met with condition: Photo Limit')
-        elif(condition is 'timeLimit'):
+        elif (condition is 'timeLimit'):
             print('Stop condition met with condition: Time Limit')
         else:
             print('Unknown stop condition met ...')
@@ -209,4 +213,6 @@ def main():
         print(TAB + 'Time elapsed: ' + str(h) + ' hours ' + str(m) + ' minutes ' + str(s) + ' seconds.')
         endTime = datetime.datetime.now()
         print('Exiting program at ' + str(endTime))
+
+
 main()
