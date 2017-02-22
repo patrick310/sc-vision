@@ -11,6 +11,9 @@ class Camera(object):
 
     def capture(self):
         return "Click!"
+		
+	def setISO(self):
+		self.ISO = 1000
 
     def __str__(self):
         return "%s is a %s" % (self.name, self.camType)
