@@ -1,12 +1,15 @@
 class Camera(object):
-    def __init__(self, name, camType):
+    def __init__(self, name, camType=None):
         self.name = name
-        self.camType = camType
+		self.camType = camType if camType is not None else "default"	#option 1
 
     def getName(self):
         return self.name
 
-    def getCamType(self):
+    def setCamType(self):												#option 2										
+        self.camType = camType
+	
+	def getCamType(self):
         return self.camType
 
     def capture(self):
@@ -23,7 +26,6 @@ class RpiCamera(Camera):
     def __init__(self, name):
         self.name = name
         self.camType = "RpiCamera"
-
 
 class TestCamera(Camera):
     # Simulates a camera and returns a test picture when TestCamera.capture is called
