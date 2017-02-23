@@ -122,7 +122,7 @@ class RpiCamera(Camera):
                                is between_inclusive(-100, 100,
                                sharpness_mode) else str(0))
 
-    def between_incluside(low, high, value):
+    def between_inclusive(low, high, value):
         if value >= low and value <= high:
             return True
         else:
