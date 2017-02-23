@@ -1,23 +1,49 @@
 class Camera(object):
-    def __init__(self, name, camType=None):
-        self.name = name
-		self.camType = camType if camType is not None else "default"
-		self.ISO = ISO if ISO is not None else "800"
+    def __init__(self):
+		return True
 	
-	def getName(self):
+	def get_name(self):
         return self.name
-
-    def setCamType(self):												#option 2										
-        self.camType = camType
 	
-	def getCamType(self):
-        return self.camType
+	def set_name(self, name=None):
+		self.name = name if name is not None else "new camera"
+
+	def get_camera_type(self):
+        return self.camera_type
+	
+	def set_camera_type(self, camera_type=None):
+		self.camera_type = camera_type if camera_type is not None else "default type"
+		
+	def get_contrast(self):
+		return self.contrast
+	
+	def set_contrast(self, contrast=None):
+		self.contrast = contrast if contrast is not None else str(0)
+		#-100 to 100
+
+	def get_brightness(self):
+		return self.brightness
+	
+	def set_brightness(self, brightness=None):
+		self.brightness = brightness if brightness is not None else str(50)
+		#0 to 100
+		
+	def get_saturation(self):
+		return self.saturation
+		
+	def set_saturation(self, saturation=None):
+		self.saturation = saturation if saturation is not None else str(0)
+		#-100 to 100
+		
+	def get_iso(self):
+        return self.iso
+	
+	def set_iso(self, iso=None):
+		self.iso = iso if iso is not None else str(450)
+		#100 to 800
 
     def capture(self):
-        return "Click!"
-		
-	def setISO(self):
-		self.ISO = 1000
+        return "Click!"	
 
     def __str__(self):
         return "%s is a %s" % (self.name, self.camType)
@@ -50,4 +76,5 @@ class TestCamera(Camera):
         return file
 
     def capture(self):
-        return TestCamera.create_test_image()
+        return TestCamera.create_test_image()	
+			
