@@ -1,9 +1,10 @@
 class Camera(object):
     def __init__(self, name, camType=None):
         self.name = name
-		self.camType = camType if camType is not None else "default"	#option 1
-
-    def getName(self):
+		self.camType = camType if camType is not None else "default"
+		self.ISO = ISO if ISO is not None else "800"
+	
+	def getName(self):
         return self.name
 
     def setCamType(self):												#option 2										
@@ -26,6 +27,11 @@ class RpiCamera(Camera):
     def __init__(self, name):
         self.name = name
         self.camType = "RpiCamera"
+	
+	def setExposureMode(self, exposure_mode):
+		exposure_options = [off, auto, night, nightpreview, backlights, spotlight, sports, snow, beach, verylong, fixefps, antishake, fireworks]
+		self.exposure_mode = exposure_mode if exposure_mode is in exposure_options else "auto"
+		
 
 class TestCamera(Camera):
     # Simulates a camera and returns a test picture when TestCamera.capture is called
