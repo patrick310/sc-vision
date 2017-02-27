@@ -1,8 +1,8 @@
-from .. import utils
+from utils import between_inclusive
 
 class Camera(object):
     def __init__(self):
-        return True
+        return None
     
     def get_name(self):    
         return self.name
