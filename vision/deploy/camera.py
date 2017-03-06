@@ -128,17 +128,17 @@ class RpiCamera(Camera):
                                sharpness_mode) else str(0))
 							
 							
-	def capture(self):
-		# Create the in-memory stream
-		stream = BytesIO()
-		with PiCamera() as camera:
-			camera.start_preview()
-			sleep(2)
-			camera.capture(stream, format='jpeg')
-			# "Rewind" the stream to the beginning so we can read its content
-			stream.seek(0)
-			image = Image.open(stream)
-		return image
+    def capture(self):
+        # Create the in-memory stream
+        stream = BytesIO()
+        with PiCamera() as camera:
+            camera.start_preview()
+            sleep(2)
+            camera.capture(stream, format='jpeg')
+            # "Rewind" the stream to the beginning so we can read its content
+            stream.seek(0)
+            image = Image.open(stream)
+        return image
 
 class TestCamera(Camera):
 
