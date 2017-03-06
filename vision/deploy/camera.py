@@ -1,4 +1,8 @@
 from utils import between_inclusive
+from io import BytesIO
+from time import sleep
+from picamera import PiCamera
+from PIL import Image
 
 class Camera(object):
     def __init__(self):
@@ -122,8 +126,19 @@ class RpiCamera(Camera):
         self.shaprness_mode = (sharpness_mode if sharpness_mode
                                is between_inclusive(-100, 100,
                                sharpness_mode) else str(0))
-
-
+							
+							
+	def capture(self):
+		# Create the in-memory stream
+		stream = BytesIO()
+		with PiCamera() as camera:
+			camera.start_preview()
+			sleep(2)
+			camera.capture(stream, format='jpeg')
+			# "Rewind" the stream to the beginning so we can read its content
+			stream.seek(0)
+			image = Image.open(stream)
+		return image
 
 class TestCamera(Camera):
 
