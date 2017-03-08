@@ -160,3 +160,7 @@ class TestCamera(Camera):
 
     def capture(self):
         return TestCamera.create_test_image()
+
+class Process(camera, timedelay):
+
+    def _init_(self, 
