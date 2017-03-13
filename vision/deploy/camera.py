@@ -130,7 +130,7 @@ class RpiCamera(Camera):
 							
     def capture(self):
         # Create the in-memory stream
-        stream = BytesIO()
+        stream = BytesIO() 
         with PiCamera() as camera:
             camera.start_preview()
             sleep(2)
@@ -160,7 +160,3 @@ class TestCamera(Camera):
 
     def capture(self):
         return TestCamera.create_test_image()
-
-class Process(camera, timedelay):
-
-    def _init_(self, 
