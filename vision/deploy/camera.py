@@ -80,25 +80,27 @@ class Camera(object):
     def save_to_file(image, classification):
         # needs to place pictures into appropriate folders based on their known classifications
 
-        path = os.getcwd()
-        newpath = path + classification #trying to add two strings not sure about syntax
-        #trying to name the image input the datetime result
+        #get current working directory
+        cwd = os.getcwd()
+        #get datestr and change image name Note: wrong but Im not sure how to do it.... yet
         datestr = datetime.strftime(datetime.today(), "%Hh %Mm %Ss %A, %B %Y")
-        image='datestr'+'.jpg' #trying to change the name of the file to an unique name
-        complete = os.path.join(path, image, ".jpg")
+        image= datestr +'.jpg'
+        #build new folder's path
+        newFolderPath = cwd + "/" + classification
+        #create new folder if it doesn't exist already
+        if not os.path.exists(newFolderPath):
+            os.makedirs(newFolderPath)
+        else:
+            print(newFolderPath + "already exists!")
+        #build path to image in cwd
+        imageFilePath = cwd + "/" + image + ".jpg"
+        #ensure image file exists
+        if os.path.exists(imageFilePath):
+            #if so move into new folder
+            os.rename(imageFilePath, newFolderPath + "/" + image+ ".jpg")
+        else:
+            print ("couldn't find" + imageFilePath)
         
-
-        #how do I actually incorportate the classification in the directory
-        #if not os.path.exists('C:\Users\Catharina\Documents\GitHub\sc-vision\vision\deploy\'classification'')
-        #   os.mkdir('C:\Users\Catharina\Documents\GitHub\sc-vision\vision\deploy\'classification'')
-
-        #thought about getting cwdir instead and appending that wiht the datetime info
-        #src = os.getcwd()
-        #dst = 'C:\Users\Catharina\Documents\GitHub\sc-vision\vision\deploy\'classification''
-        #shutil.move(src, dst)
-
-        #trying to save the image to the newly created classification folder
-
 
 class RpiCamera(Camera):
 
