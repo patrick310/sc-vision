@@ -1,7 +1,7 @@
 from utils import between_inclusive
 from io import BytesIO
 from time import sleep
-from picamera import PiCamera
+#from picamera import PiCamera #TODO: check if raspberry pi. Import if yes
 from PIL import Image
 
 class Camera(object):
@@ -53,6 +53,27 @@ class Camera(object):
 
     def __str__(self):
         return '%s is a %s' % (self.name, self.camType)
+
+    def capture_to_file(self,image):
+        count = 1
+        image.save('image%s.jpg' % count)
+        count += 1
+        return True
+
+    def getNextFilePath(output_folder):
+        highest_num = 0
+        for f in os.listdir(output_folder):
+            if os.path.isfile(os.path.join(output_folder, f)):
+                file_name = os.path.splitext(f)[0]
+                try:
+                    file_num = int(file_name)
+                    if file_num > highest_num:
+                        highest_num = file_num
+                except ValueError:
+                    'The file name "%s" is not an integer. Skipping' % file_name
+
+        output_file = os.path.join(output_folder, str(highest_num + 1))
+        return output_file
 
 
 class RpiCamera(Camera):
@@ -139,9 +160,8 @@ class RpiCamera(Camera):
             stream.seek(0)
             image = Image.open(stream)
         return image
-
-class TestCamera(Camera):
-
+            
+class TestCamera(Camera):    
     # Simulates a camera and returns a test picture when TestCamera.capture is called
 
     def __init__(self, name):
@@ -156,7 +176,7 @@ class TestCamera(Camera):
         image.save(file, 'png')
         file.name = 'test.png'
         file.seek(0)
-        return file
+        return image
 
     def capture(self):
         return TestCamera.create_test_image()
