@@ -1,6 +1,8 @@
 from utils import between_inclusive
 from io import BytesIO
 from time import sleep
+from time import datetime
+from datetime import datetime
 #from picamera import PiCamera #TODO: check if raspberry pi. Import if yes
 from PIL import Image
 
@@ -60,7 +62,7 @@ class Camera(object):
         count += 1
         return True
 
-    def getNextFilePath(output_folder):
+    def get_next_filePath(output_folder):
         highest_num = 0
         for f in os.listdir(output_folder):
             if os.path.isfile(os.path.join(output_folder, f)):
@@ -74,6 +76,28 @@ class Camera(object):
 
         output_file = os.path.join(output_folder, str(highest_num + 1))
         return output_file
+
+    def save_to_file(image, classification):
+        # needs to place pictures into appropriate folders based on their known classifications
+
+        path = os.getcwd()
+        newpath = path + classification #trying to add two strings not sure about syntax
+        #trying to name the image input the datetime result
+        datestr = datetime.strftime(datetime.today(), "%Hh %Mm %Ss %A, %B %Y")
+        image='datestr'+'.jpg' #trying to change the name of the file to an unique name
+        complete = os.path.join(path, image, ".jpg")
+        
+
+        #how do I actually incorportate the classification in the directory
+        #if not os.path.exists('C:\Users\Catharina\Documents\GitHub\sc-vision\vision\deploy\'classification'')
+        #   os.mkdir('C:\Users\Catharina\Documents\GitHub\sc-vision\vision\deploy\'classification'')
+
+        #thought about getting cwdir instead and appending that wiht the datetime info
+        #src = os.getcwd()
+        #dst = 'C:\Users\Catharina\Documents\GitHub\sc-vision\vision\deploy\'classification''
+        #shutil.move(src, dst)
+
+        #trying to save the image to the newly created classification folder
 
 
 class RpiCamera(Camera):
