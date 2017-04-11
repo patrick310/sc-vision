@@ -34,7 +34,7 @@ val_gen = val_datagen.flow_from_directory(
     class_mode = configs.class_mode
 )
 
-print "Creating files."
+print("Creating files.")
 
 test_file = h5py.File(configs.test_fname, "w")
 test_image_data = test_file.create_dataset(
@@ -60,7 +60,7 @@ val_class_data = val_file.create_dataset(
     dtype = "float32"
 )
 
-print "Generating training images."
+print("Generating training images.")
 
 counter = 0
 while counter != configs.nb_test_images:
@@ -79,7 +79,7 @@ while counter != configs.nb_test_images:
     sys.stdout.flush()
 test_file.close()
 
-print "Generating test images."
+print("Generating test images.")
 
 counter = 0
 while counter != configs.nb_val_images:
@@ -97,4 +97,4 @@ while counter != configs.nb_val_images:
     sys.stdout.flush()
 val_file.close()
 
-print "Done."
+print("Done.")
