@@ -1,8 +1,8 @@
-from utils import between_inclusive
+from .utils import between_inclusive
 from io import BytesIO
 from time import sleep
-from time import datetime
 from datetime import datetime
+import os
 #from picamera import PiCamera #TODO: check if raspberry pi. Import if yes
 from PIL import Image
 
@@ -83,8 +83,9 @@ class Camera(object):
         #get current working directory
         cwd = os.getcwd()
         #get datestr and change image name Note: wrong but Im not sure how to do it.... yet
+        #I think you are confusing yourself with the import statements above... I don't think you need datetime again
         datestr = datetime.strftime(datetime.today(), "%Hh %Mm %Ss %A, %B %Y")
-        image= datestr +'.jpg'
+        image_name= datestr +'.jpg'
         #build new folder's path
         newFolderPath = cwd + "/" + classification
         #create new folder if it doesn't exist already
@@ -93,11 +94,20 @@ class Camera(object):
         else:
             print(newFolderPath + "already exists!")
         #build path to image in cwd
-        imageFilePath = cwd + "/" + image + ".jpg"
+
+
+        #we don't have a path to the image yet, we are going to pass the image to this method in memory
+        #I will add a line that will fix it, but we are adding an extra step
+        #We will save it in the cwd so that you can move it to the right folder
+
+        #Nice work, Cath. This is great stuff :)
+
+        image.save(image_name)  #the one missing part
+        imageFilePath = cwd + "/" + image_name + ".jpg"
         #ensure image file exists
         if os.path.exists(imageFilePath):
             #if so move into new folder
-            os.rename(imageFilePath, newFolderPath + "/" + image+ ".jpg")
+            os.rename(imageFilePath, newFolderPath + "/" + image_name + ".jpg")
         else:
             print ("couldn't find" + imageFilePath)
         
@@ -178,7 +188,7 @@ class RpiCamera(Camera):
     def capture(self):
         # Create the in-memory stream
         stream = BytesIO() 
-        with PiCamera() as camera:
+        with RpiCamera as camera:
             camera.start_preview()
             sleep(2)
             camera.capture(stream, format='jpeg')
@@ -190,8 +200,8 @@ class RpiCamera(Camera):
 class TestCamera(Camera):    
     # Simulates a camera and returns a test picture when TestCamera.capture is called
 
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
+        self.name = "Test Camera"
         self.camType = 'TestCamera'
 
     def create_test_image():
@@ -206,3 +216,13 @@ class TestCamera(Camera):
 
     def capture(self):
         return TestCamera.create_test_image()
+
+
+if __name__ == "__main__":
+    a = TestCamera()
+    image = a.capture()
+    Camera.save_to_file(image, "test")
+    print(type(image))
+    #assert(type(image)==type("string")) #we are going to do tests in a separate module. I am leaning towards nose2
+    #(over unittest2)
+
