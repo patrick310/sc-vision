@@ -1,4 +1,4 @@
-from utils import between_inclusive
+from .utils import between_inclusive
 from io import BytesIO
 from time import sleep
 from datetime import datetime
@@ -188,7 +188,7 @@ class RpiCamera(Camera):
     def capture(self):
         # Create the in-memory stream
         stream = BytesIO() 
-        with PiCamera() as camera:
+        with RpiCamera as camera:
             camera.start_preview()
             sleep(2)
             camera.capture(stream, format='jpeg')
