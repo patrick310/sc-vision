@@ -8,6 +8,7 @@ __pycache__/
 *.jpg
 *.zip
 *.h5py
+*.hdf5
 
 # C extensions
 *.so
