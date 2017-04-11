@@ -6,6 +6,8 @@ __pycache__/
 
 #Images (add other types later, we don't need any)
 *.jpg
+*.zip
+*.h5py
 
 # C extensions
 *.so
