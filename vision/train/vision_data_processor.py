@@ -107,16 +107,16 @@ class VisionDataProcessor():
         
         model.add(Activation('relu'))
         
-        model.add(Dropout({{uniform(0, 1)}}))
+        model.add(Dropout(0.75))
         
-        model.add(configs.nb_classes))
+        model.add(Dense(configs.nb_classes))
         
         model.add(Activation('sigmoid'))
             
         if configs.print_summary:
             model.summary()
         
-        model.compile(optimizer='categorical_crossentropy',
+        model.compile(optimizer='rmsprop',
               loss='binary_crossentropy',
               metrics=['accuracy'])
               
