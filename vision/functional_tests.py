@@ -16,6 +16,17 @@ class ImagePreparationTest(unittest.TestCase):
         #Prepares and checks image sets]
         None
         
+    #Greg notices a cool new intranet-based applicaion called VisionNet. He sees visionnet in the browser title and
+    #html header.
+    
+    #Greg is immediately invited to upload images
+    
+    #The images show up in a table under 'class 1' row.
+    
+    #Greg clicks add class button and names it class 2
+    
+    #Finish the tests
+        
 
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
