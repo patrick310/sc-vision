@@ -6,6 +6,8 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 import h5py
 import configs
 import numpy as np
+import pydot
+from keras.utils import plot_model
 
 class VisionDataProcessor():
 
@@ -100,7 +102,6 @@ class VisionDataProcessor():
         model.add(MaxPooling2D(pool_size=(2, 2)))
         
         model.add(Flatten())
-        
         model.add(Dense(75))
         model.add(Dense(40))
         model.add(Dense(10))
@@ -110,7 +111,6 @@ class VisionDataProcessor():
         model.add(Dropout(0.75))
         
         model.add(Dense(configs.nb_classes))
-        
         model.add(Activation('sigmoid'))
             
         if configs.print_summary:
@@ -121,7 +121,8 @@ class VisionDataProcessor():
               metrics=['accuracy'])
               
         self.model = model
-        
+        plot_model(model,to_file='model.png')
+
     def fit_simple_keras_model(self):
         self.model.fit_generator(
             self.train_generator,
