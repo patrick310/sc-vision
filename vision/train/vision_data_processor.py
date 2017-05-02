@@ -128,6 +128,7 @@ class VisionDataProcessor():
             epochs=configs.nb_epoch,
             validation_data=self.validation_generator,
             validation_steps=(nb_val_images/configs.batch_size)
+            )
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
