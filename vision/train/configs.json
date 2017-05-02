@@ -1,6 +1,6 @@
 {
   "global" : {
-  "nb_classes" : 3,
+  "nb_classes" : 2,
   "img_width" : 150,
   "img_height" : 150,
   "model_save_name" : "MY_MODEL.hdf5"
@@ -19,16 +19,16 @@
     "class_mode" : "binary",
 
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 360,
-    "test_dir" : "all_data/train",
+    "nb_test_images" : 20999,
+    "test_dir" : "pet_data/train",
 
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 51,
-    "val_dir" : "all_data/validate"
+    "nb_val_images" : 4000,
+    "val_dir" : "pet_data/validate"
   },
 
   "training" : {
-    "batch_size" : 180,
+    "batch_size" : 32,
     "nb_epoch"   : 5,
     "verbose" : true,
     "print_summary" : true

@@ -4,12 +4,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+**/pet_data/
+**/all_data/
+**/visualize/*
+
 #Images (add other types later, we don't need any)
 *.jpg
 *.jpeg
 *.zip
 *.h5py
 *.hdf5
+*.db
 
 # C extensions
 *.so

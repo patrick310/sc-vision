@@ -6,7 +6,7 @@ from keras.layers import Activation, Dropout, Flatten, Dense
 import h5py
 import configs
 import numpy as np
-import pydot
+import os
 from keras.utils import plot_model
 
 class VisionDataProcessor():
@@ -115,21 +115,19 @@ class VisionDataProcessor():
             
         if configs.print_summary:
             model.summary()
-        
         model.compile(optimizer='rmsprop',
-              loss='binary_crossentropy',
+              loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
               
         self.model = model
-        plot_model(model,to_file='model.png')
 
     def fit_simple_keras_model(self):
         self.model.fit_generator(
             self.train_generator,
-            steps_per_epoch=1,
+            steps_per_epoch=int(nb_train_images/configs.batch_size),
             epochs=configs.nb_epoch,
             validation_data=self.validation_generator,
-            validation_steps=1)
+            validation_steps=(nb_val_images/configs.batch_size)
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
