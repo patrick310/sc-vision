@@ -18,9 +18,9 @@
     "color_mode" : "grayscale",
     "class_mode" : "binary",
 
-    "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 20999,
-    "test_dir" : "pet_data/train",
+    "train_fname" : "test_data.hdf5",
+    "nb_train_images" : 20999,
+    "train_dir" : "pet_data/train",
 
     "val_fname"  : "val_data.hdf5",
     "nb_val_images" : 4000,

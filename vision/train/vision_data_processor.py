@@ -23,7 +23,7 @@ class VisionDataProcessor():
         horizontal_flip = configs.horizontal_flip,
         )
         
-        self.train_generator = self.create_data_generator_from_directory(configs.test_dir)
+        self.train_generator = self.create_data_generator_from_directory(configs.train_dir)
         self.validation_generator = self.create_data_generator_from_directory(configs.val_dir)
     
     def create_data_generator_from_directory(self, directory):
@@ -124,10 +124,10 @@ class VisionDataProcessor():
     def fit_simple_keras_model(self):
         self.model.fit_generator(
             self.train_generator,
-            steps_per_epoch=int(nb_train_images/configs.batch_size),
+            steps_per_epoch=int(configs.nb_train_images/configs.batch_size),
             epochs=configs.nb_epoch,
             validation_data=self.validation_generator,
-            validation_steps=(nb_val_images/configs.batch_size)
+            validation_steps=int(configs.nb_val_images/configs.batch_size)
             )
         
 if __name__ == '__main__':
