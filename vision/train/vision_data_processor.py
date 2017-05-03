@@ -7,7 +7,6 @@ import h5py
 import configs
 import numpy as np
 import pydot
-from keras.utils import plot_model
 
 class VisionDataProcessor():
 
@@ -117,11 +116,10 @@ class VisionDataProcessor():
             model.summary()
         
         model.compile(optimizer='rmsprop',
-              loss='binary_crossentropy',
+              loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
               
         self.model = model
-        plot_model(model,to_file='model.png')
 
     def fit_simple_keras_model(self):
         self.model.fit_generator(

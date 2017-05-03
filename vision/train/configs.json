@@ -19,16 +19,16 @@
     "class_mode" : "binary",
 
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 360,
+    "nb_test_images" : 204,
     "test_dir" : "all_data/train",
 
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 51,
+    "nb_val_images" : 37,
     "val_dir" : "all_data/validate"
   },
 
   "training" : {
-    "batch_size" : 180,
+    "batch_size" : 105,
     "nb_epoch"   : 5,
     "verbose" : true,
     "print_summary" : true
