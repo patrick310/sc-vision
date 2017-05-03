@@ -7,8 +7,6 @@ import h5py
 import configs
 import numpy as np
 import os
-from keras.utils import plot_model
-import pydot
 
 class VisionDataProcessor():
 
