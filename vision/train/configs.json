@@ -18,6 +18,7 @@
     "color_mode" : "grayscale",
     "class_mode" : "binary",
 
+<<<<<<< HEAD
     "train_fname" : "test_data.hdf5",
     "nb_train_images" : 20999,
     "train_dir" : "pet_data/train",
@@ -29,6 +30,19 @@
 
   "training" : {
     "batch_size" : 32,
+=======
+    "test_fname" : "test_data.hdf5",
+    "nb_test_images" : 204,
+    "test_dir" : "all_data/train",
+
+    "val_fname"  : "val_data.hdf5",
+    "nb_val_images" : 37,
+    "val_dir" : "all_data/validate"
+  },
+
+  "training" : {
+    "batch_size" : 105,
+>>>>>>> traintest
     "nb_epoch"   : 5,
     "verbose" : true,
     "print_summary" : true
