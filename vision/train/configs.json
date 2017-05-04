@@ -29,7 +29,6 @@
 
   "training" : {
     "batch_size" : 105,
-
     "nb_epoch"   : 5,
     "verbose" : true,
     "print_summary" : true
