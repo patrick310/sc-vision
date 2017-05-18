@@ -130,7 +130,7 @@ class VisionDataProcessor():
             )
             
     def save_trained_keras_model_to_file(self):
-        model.save_weights('model_weights.h5py')
+        self.model.save('model_output.h5')
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()

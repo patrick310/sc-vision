@@ -1,4 +1,5 @@
 #Import packages
+from keras.models import load_model
 
 #Load the model and weight
 
@@ -15,7 +16,7 @@ class RoughSorter():
 		None
 		
 	def import_model():
-		None
+		self.model = load_model('model_output.h5')
 		
 	def begin_photo_loop():
 		None
