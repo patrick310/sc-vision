@@ -126,11 +126,15 @@ class VisionDataProcessor():
             steps_per_epoch=int(configs.nb_test_images/configs.batch_size),
             epochs=configs.nb_epoch,
             validation_data=self.validation_generator, 
-			validation_steps=int(configs.nb_val_images/configs.batch_size)
+            validation_steps=int(configs.nb_val_images/configs.batch_size)
             )
+            
+    def save_trained_keras_model_to_file(self):
+        model.save_weights('model_weights.h5py')
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
     dataprocessor.create_simple_keras_model()
     dataprocessor.fit_simple_keras_model()
+    dataprocessor.save_trained_keras_model_to_file()
     print("Done.")
