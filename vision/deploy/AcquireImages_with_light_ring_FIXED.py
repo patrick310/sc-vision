@@ -25,7 +25,7 @@ cam.sharpness = sharpness
 cam.meter_mode = meter_mode
 cam.iso = iso
 
-duration = 1
+duration = 3
 saveLoc = '/home/pi/Pictures/'
 photoLimit = None
 timeLimit = None
@@ -58,7 +58,7 @@ def gatherArguments():
     global duration
     if args.duration is None:
         print(TAB + 'Duration not defined. Duration defaulting to 5 seconds')
-        duration = 1
+        duration = 3
     else:
         try:
             duration = int(args.duration)

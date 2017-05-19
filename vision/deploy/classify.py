@@ -1,5 +1,6 @@
 import os
-os.environ['KERAS_BACKEND']='theano'
+
+os.environ['KERAS_BACKEND'] = 'theano'
 import picamera
 import numpy as np
 from PIL import Image, ImageOps
@@ -14,6 +15,7 @@ import RPi.GPIO as GPIO
 import logging
 import mopiapi
 
+
 # Takes an image packet and spawns a thread to process the image packet.
 def process_image(image_packet):
     # _process_image runs in a different thread than the main thread, allowing
@@ -24,6 +26,7 @@ def process_image(image_packet):
         image = image_packet[0]
         image_number = image_packet[1]
         global size
+
         # Formats a PIL image into a numpy array that can be directly fed into
         # a neural network model.
         def format_image_for_network(image):
@@ -35,6 +38,7 @@ def process_image(image_packet):
             temp.append(arr)
             arr = np.array(temp)
             return arr
+
         # Determines the highest value in an array and returns the index of that
         # value.  This is used to determine which directory to save a
         # captured image to.
@@ -44,32 +48,41 @@ def process_image(image_packet):
                 if arr[index] > arr[highest_index]:
                     highest_index = index
             return highest_index
+
         # Takes a numpy array representing a single image and returns an array
         # containing class probabilities.
         def get_image_prediction(arr):
             global model
-            return model.predict_proba(arr, batch_size = 1, verbose = 0)[0]
+            return model.predict_proba(arr, batch_size=1, verbose=0)[0]
+
         # Scales a full-size image down to the appropriate size and converts the
         # scaled down image to grayscale.  The resulting resized, grayscale
         # image is returned (a copy--the original image is not affected).
         def reformat_image(image):
             return ImageOps.grayscale(image.resize(size))
+
         # Saves an image to the directory of the class it is most likely to be.
         def save_image(index):
             # Gets the directory name of the class the image is most likely to be.
             def get_dir_name():
                 names = sorted(os.listdir(os.getcwd() + configs.save_folder))
                 if len(names) != configs.nb_classes:
-                    logging.critical("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
+                    logging.critical(
+                        "Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(
+                            configs.nb_classes) + ")")
                     global CRITICAL_FLAG
                     critical_lock.acquire()
                     CRITICAL_FLAG = True
                     critical_lock.release()
-                    raise IOError("Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(configs.nb_classes) + ")")
+                    raise IOError(
+                        "Wrong number of class directories in save directory (" + str(len(names)) + " =/= " + str(
+                            configs.nb_classes) + ")")
                 return names[index]
+
             # Attempt to process the image.
             try:
-                image_name = os.getcwd() + configs.save_folder + "/" + get_dir_name() + "/" + configs.image_descriptor + str(image_number) + ".jpeg"
+                image_name = os.getcwd() + configs.save_folder + "/" + get_dir_name() + "/" + configs.image_descriptor + str(
+                    image_number) + ".jpeg"
                 image.save(image_name)
                 logging.info("Saved image: " + image_name + " to " + get_dir_name())
                 logging.debug("Image processsed and saved (" + str(threading.current_thread()) + ").")
@@ -84,13 +97,15 @@ def process_image(image_packet):
         prediction = get_image_prediction(arr)
         index = highest_index(prediction)
         save_image(index)
+
     # Process the image_packet in another thread besides the main thread.
-    thread = threading.Thread(target = _process_image, args = ([image_packet]))
+    thread = threading.Thread(target=_process_image, args=([image_packet]))
     thread.start()
     # Add the thread to the global thread list to make sure the thread
     # completes its operation before the main thread stops execution.
     global threads
     threads.append(thread)
+
 
 # Determines whether the time limit is reached as specified by the
 # time limit values in the configs.json file.
@@ -98,13 +113,15 @@ def time_limit_reached(program_start_time):
     # Returns the current time.
     def now():
         return datetime.datetime.fromtimestamp(time.time())
+
     # Returns the total seconds elapsed between two times.
-    def difference_between_times(start_time, stop_time = None):
+    def difference_between_times(start_time, stop_time=None):
         if stop_time is None:
             stop_time = now()
         time_difference = stop_time - start_time
         seconds_elapsed = time_difference.total_seconds()
         return seconds_elapsed
+
     # Calculates the total amount of time the program is supposed to run.
     def calculate_runtime():
         runtime = 0.0
@@ -119,6 +136,7 @@ def time_limit_reached(program_start_time):
     else:
         return False
 
+
 # Determines if the image capture limit is reached as specified by the
 # configs.json file.
 def image_limit_reached(current_count):
@@ -127,13 +145,14 @@ def image_limit_reached(current_count):
     else:
         return False
 
+
 # Captures an image and returns a PIL image object.
 def capture_image(
-        resolution = (3280, 2464),
-        exposure_mode = 'auto',
-        warmup_delay = 0.2,
-        format = 'jpeg'
-        ):
+        resolution=(3280, 2464),
+        exposure_mode='auto',
+        warmup_delay=0.2,
+        format='jpeg'
+):
     logging.debug("Capturing image.")
     GPIO.output(configs.camera_pin, GPIO.HIGH)
     GPIO.output(configs.light_ring_pin, GPIO.HIGH)
@@ -142,7 +161,7 @@ def capture_image(
         cam.resolution = resolution
         cam.exposure_mode = exposure_mode
         time.sleep(warmup_delay)
-        cam.capture(stream, format = format)
+        cam.capture(stream, format=format)
         cam.close()
     GPIO.output(configs.light_ring_pin, GPIO.LOW)
     stream.seek(0)
@@ -151,20 +170,24 @@ def capture_image(
     logging.debug("Image captured.")
     return image
 
+
 # Joins all threads to ensure that all captured images are processed and
 # turns off all GPIO pins.
 def cleanup():
     logging.info("Cleaning up.")
+
     def join_threads():
         global threads
         for thread in threads:
             thread.join()
+
     join_threads()
     logging.debug("All spawned threads joined.")
     logging.debug("Clearing GPIO pins.")
     GPIO.cleanup()
     logging.info("All clean.")
     logging.info(" --- Exiting Program --- ")
+
 
 # This is called if a critical error occurs.  It enables the error LED
 # and loops forever, alternating the power LED to signal to the user something
@@ -183,12 +206,14 @@ def critical_exit():
         cleanup()
         raise err
 
+
 # The main program loop.
 def loop():
     # Determines if the capture delay-- the time in between image captures--
     # has been reached.
     def capture_delay_reached(timer_start):
         return (datetime.datetime.fromtimestamp(time.time()) - timer_start).total_seconds() >= configs.capture_delay
+
     # A self-diagnostic function.  Uses the MoPi API to check the battery level
     # and checks to see if memory is getting low on the SD card.  If a critical
     # condition is met such as the battery being almost dead or the system is
@@ -232,15 +257,17 @@ def loop():
     except Exception as err:
         cleanup()
         logging.error("Exiting main loop b/c error occured.")
-        print err
+        print(err)
+
 
 def setup():
     # Enable the use of the logging module.
+    # https://docs.python.org/2/howto/logging.html go here for logging info (levels information)
     logging.basicConfig(
-        filename = 'mylog.log',
-        format = '%(asctime)s : %(levelname)s : %(message)s',
+        filename='mylog.log',
+        format='%(asctime)s : %(levelname)s : %(message)s',
         datefmt='%m/%d/%Y %I:%M:%S%p',
-        level = logging.DEBUG)
+        level=logging.DEBUG)
 
     logging.info(" --- Beginning Program --- ")
 
@@ -258,6 +285,7 @@ def setup():
             GPIO.setup(configs.battery_pin, GPIO.OUT)
             GPIO.setup(configs.buzzer_pin, GPIO.OUT)
             GPIO.setup(configs.light_ring_pin, GPIO.OUT)
+
         setup_GPIO()
 
         GPIO.output(configs.power_pin, GPIO.HIGH)
@@ -293,6 +321,7 @@ def setup():
     except Exception as err:
         logging.error("Failed to set up all global variables.")
         raise err
+
 
 setup()
 loop()
