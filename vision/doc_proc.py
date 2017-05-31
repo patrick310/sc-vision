@@ -15,19 +15,21 @@ class CardProcessor():
         self.detect_stamp_fields__from_aspect_ratio_and_size()
         cv2.drawContours(self.quality_card, self.correct_ratio_contours, -1, (0,255,0), 3)
 
-        cv2.imshow("Quality Card", self.quality_card)
+        cv2.imshow("Quality Card", self.cleaned_up_image())
         cv2.imshow("Canny Edge Detection", self.edged)
         cv2.imwrite("processed_quality_card.jpg", self.quality_card)
-
+        cv2.imshow(self.h)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
     def cleaned_up_image(self):
         # convert to gray scale and blur the noise out
-        gray = cv2.cvtColor(self.quality_card, cv2.COLOR_BGR2GRAY)
-        blurred = cv2.GaussianBlur(gray, (5,5), 0)
+        HSV = cv2.cvtColor(self.quality_card, cv2.COLOR_BGR2HSV)
+        self.h, s, v = cv2.split(HSV)
 
-        return blurred
+      #  blurred = cv2.GaussianBlur(gray, (1,1), 0)
+
+        return self.original_quality_card
 
     def detect_contours_on_image(self):
         contours_edges = cv2.Canny(self.cleaned_up_image(), 75, 200)

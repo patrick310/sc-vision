@@ -6,6 +6,9 @@ __pycache__/
 
 **/pet_data/
 **/all_data/
+**/data/
+**/odata/
+
 **/visualize/*
 
 #Images (add other types later, we don't need any)
@@ -13,6 +16,7 @@ __pycache__/
 *.jpeg
 *.zip
 *.h5py
+*.h5
 *.hdf5
 *.db
 
@@ -43,6 +47,7 @@ wheels/
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+.vs/
 
 # Installer logs
 pip-log.txt
@@ -105,3 +110,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+#Visual Studio
+**/vs/
