@@ -32,7 +32,7 @@ set_resolution(vc, 1920, 1080)
 while rval:
     file_name = str(counter) + ".jpg"
     rval, frame = vc.read()
-    oframe = frame
+    oframe = frame.copy()
 
     prediction = model.predict(format_image_for_network(frame))
     print("The class was " + str(prediction))

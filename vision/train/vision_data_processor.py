@@ -35,7 +35,7 @@ class VisionDataProcessor():
         horizontal_flip = configs.horizontal_flip,
         )
 
-        self.input_shape = (configs.img_width, configs.img_height, 3)
+        self.input_shape = (configs.img_width, configs.img_height, 1)
 
         self.validation_data_generator = ImageDataGenerator()
         
@@ -115,7 +115,7 @@ class VisionDataProcessor():
         
         model = Sequential()
          
-        model.add(Conv2D(32, (2, 2),
+        model.add(Conv2D(16, (3, 3),
             padding='same',
             data_format='channels_last',
             input_shape=self.input_shape))
@@ -139,7 +139,7 @@ class VisionDataProcessor():
         if configs.print_summary:
             model.summary()
 
-        sgd = optimizers.SGD(lr=0.157, decay=1e-6, momentum=0.9, nesterov=True)
+        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
 
         model.compile(optimizer=sgd,
               loss='sparse_categorical_crossentropy',
@@ -274,6 +274,7 @@ class VisionDataProcessor():
 
     def save_trained_keras_model_to_file(self):
         self.model.save(configs.model_save_name)
+        return None
 
     def inception_cross_train(self):
         # create the base pre-trained model
