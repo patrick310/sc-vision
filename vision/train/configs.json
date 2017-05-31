@@ -1,8 +1,8 @@
 {
   "global" : {
     "nb_classes" : 2,
-    "img_width" : 128,
-    "img_height" : 128,
+    "img_width" : 256,
+    "img_height" : 256,
     "model_save_name" : "model_output.h5"
   },
 
@@ -10,9 +10,9 @@
     "shear_range" : 0.1,
     "zoom_range" : 0.1,
     "zca_whitening" : false,
-    "rotation_range" : 90,
-    "width_shift_range" : 0.15,
-    "height_shift_range" : 0.15,
+    "rotation_range" : 20,
+    "width_shift_range" : 0.10,
+    "height_shift_range" : 0.10,
     "vertical_flip" : false,
     "horizontal_flip" : true,
     "color_mode" : "rgb",
@@ -23,13 +23,13 @@
     "test_dir" : "odata/train",
 
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 300,
+    "nb_val_images" : 200,
     "val_dir" : "odata/validate"
   },
 
   "training" : {
-    "batch_size" : 10,
-    "nb_epoch"   : 10,
+    "batch_size" : 4,
+    "nb_epoch"   : 25,
     "verbose" : true,
     "print_summary" : true
   },

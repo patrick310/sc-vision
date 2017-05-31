@@ -13,6 +13,9 @@ from keras import backend as K
 from hyperopt import Trials, STATUS_OK, tpe
 from hyperas import optim
 from hyperas.distributions import choice, uniform, conditional
+
+from hyperas import optim
+from hyperas.distributions import choice, uniform, conditional
 import h5py
 import configs
 import numpy as np
@@ -31,6 +34,8 @@ class VisionDataProcessor():
         vertical_flip = configs.vertical_flip,
         horizontal_flip = configs.horizontal_flip,
         )
+
+        self.input_shape = (configs.img_width, configs.img_height, 3)
 
         self.validation_data_generator = ImageDataGenerator()
         
@@ -105,18 +110,15 @@ class VisionDataProcessor():
             import sys
             sys.stdout.write("  " + str(counter) + "/" + str(configs.nb_test_images) + "\r")
             sys.stdout.flush()
-        test_file.close()
         
     def create_simple_keras_model(self):
-        input_shape = (configs.img_width, configs.img_height, 3)
         
         model = Sequential()
          
-        model.add(Conv2D(128, (1, 1),
+        model.add(Conv2D(32, (2, 2),
             padding='same',
             data_format='channels_last',
-            input_shape=input_shape))
-            # now: model.output_shape == (None, 64, 32, 32)
+            input_shape=self.input_shape))
 
         model.add(Activation('tanh'))
         
@@ -137,7 +139,7 @@ class VisionDataProcessor():
         if configs.print_summary:
             model.summary()
 
-        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+        sgd = optimizers.SGD(lr=0.157, decay=1e-6, momentum=0.9, nesterov=True)
 
         model.compile(optimizer=sgd,
               loss='sparse_categorical_crossentropy',
@@ -167,18 +169,41 @@ class VisionDataProcessor():
 
         self.model = model
 
+    def create_other_doe_model(self):
+        model = Sequential()
+        model.add(Dense(512, input_shape=self.input_shape))
+        model.add(Activation('relu'))
+        model.add(Dropout({{uniform(0, 1)}}))
+        model.add(Dense({{choice([256, 512, 1024])}}))
+        model.add(Activation({{choice(['relu', 'sigmoid'])}}))
+        model.add(Dropout({{uniform(0, 1)}}))
+
+        if conditional({{choice(['three', 'four'])}}) == 'four':
+            model.add(Dense(100))
+
+            # We can also choose between complete sets of layers
+
+            model.add({{choice([Dropout(0.5), Activation('linear')])}})
+            model.add(Activation('relu'))
+
+        model.add(Dense(10))
+        model.add(Activation('softmax'))
+
+        model.compile(loss='categorical_crossentropy', metrics=['accuracy'],
+                      optimizer={{choice(['rmsprop', 'adam', 'sgd'])}})
+
     def create_doe_model(self):
         model = Sequential()
-        model.add(Convolution2D(32, 3, 3, input_shape=input_shape))
+        model.add(Convolution2D(32, 3, 3, input_shape=self.input_shape))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        if conditional({{choice(["small", "large"])}}) == "large":
+        if conditional({{choice(['three', 'four'])}}) == 'four':
             model.add(Convolution2D(32, 3, 3))
             model.add(Activation('relu'))
             model.add(MaxPooling2D(pool_size=(2, 2)))
 
-            model.add(Convolution2D(64, 3, 3, input_shape=input_shape))
+            model.add(Convolution2D(64, 3, 3, input_shape=self.input_shape))
             model.add(Activation('relu'))
             model.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -198,13 +223,27 @@ class VisionDataProcessor():
         model.add(Dense(configs.nb_classes))
         model.add(Activation('sigmoid'))
 
+        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+
         model.compile(
             loss='categorical_crossentropy',
-            optimizer={{choice(['rmsprop', 'adam', 'sgd'])}},
+            optimizer={{choice(['rmsprop', 'adam', sgd])}},
             metrics=['accuracy'])
 
         if configs.print_summary:
             model.summary()
+
+        self.model = model
+
+        self.model.fit_generator(
+            self.train_generator,
+            steps_per_epoch=int(configs.nb_test_images/configs.batch_size),
+            epochs=configs.nb_epoch,
+            validation_data=self.validation_generator,
+            validation_steps=int(configs.nb_val_images/configs.batch_size)
+            )
+
+        return {'loss': -acc, 'status': STATUS_OK, 'model': self.create_doe_model}
 
     def fit_simple_keras_model(self):
         self.model.fit_generator(
@@ -293,6 +332,7 @@ class VisionDataProcessor():
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
     dataprocessor.create_simple_keras_model()
+    #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()
     dataprocessor.fit_simple_keras_model()
