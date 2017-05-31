@@ -91,7 +91,11 @@ class VisionDataProcessor():
         test_file.close()
         
     def create_simple_keras_model(self):
+<<<<<<< HEAD
         input_shape = (configs.img_width, configs.img_height, 3)
+=======
+        input_shape = (3, configs.img_width, configs.img_height)
+>>>>>>> 79f43be0d6de8605a6bb77823ba4826124472f9a
         
         model = Sequential()
          
@@ -153,7 +157,11 @@ class VisionDataProcessor():
             )
 
     def save_trained_keras_model_to_file(self):
+<<<<<<< HEAD
         self.model.save(configs.model_save_name)
+=======
+        self.model.save('model_output.h5')
+>>>>>>> 79f43be0d6de8605a6bb77823ba4826124472f9a
 
     def inception_cross_train(self):
         # create the base pre-trained model
@@ -212,7 +220,13 @@ class VisionDataProcessor():
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
     dataprocessor.create_simple_keras_model()
+<<<<<<< HEAD
     #dataprocessor.inception_cross_train()
     dataprocessor.fit_simple_keras_model()
     dataprocessor.save_trained_keras_model_to_file()
+=======
+    dataprocessor.inception_cross_train()
+    #dataprocessor.fit_simple_keras_model()
+    #dataprocessor.save_trained_keras_model_to_file()
+>>>>>>> 79f43be0d6de8605a6bb77823ba4826124472f9a
     print("Done.")
