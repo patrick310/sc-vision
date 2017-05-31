@@ -5,10 +5,14 @@ from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers.convolutional import Conv2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.applications.inception_v3 import InceptionV3
+from keras import optimizers
 from keras.preprocessing import image
 from keras.models import Model
 from keras.layers import Dense, GlobalAveragePooling2D
 from keras import backend as K
+from hyperopt import Trials, STATUS_OK, tpe
+from hyperas import optim
+from hyperas.distributions import choice, uniform, conditional
 import h5py
 import configs
 import numpy as np
@@ -17,7 +21,7 @@ import os
 class VisionDataProcessor():
 
     def __init__(self):
-        self.data_generator = ImageDataGenerator(
+        self.training_data_generator = ImageDataGenerator(
         shear_range = configs.shear_range,
         zoom_range = configs.zoom_range,
         zca_whitening = configs.zca_whitening,
@@ -27,18 +31,31 @@ class VisionDataProcessor():
         vertical_flip = configs.vertical_flip,
         horizontal_flip = configs.horizontal_flip,
         )
+
+        self.validation_data_generator = ImageDataGenerator()
         
-        self.train_generator = self.create_data_generator_from_directory(configs.test_dir)
-        self.validation_generator = self.create_data_generator_from_directory(configs.val_dir)
+        self.train_generator = self.create_data_generator_from_directory(configs.test_dir, 'train')
+        self.validation_generator = self.create_data_generator_from_directory(configs.val_dir, 'validate')
     
-    def create_data_generator_from_directory(self, directory):
-        generated_generator = self.data_generator.flow_from_directory(
-        directory = directory,
-        target_size = (configs.img_width, configs.img_height),
-        batch_size = configs.batch_size,
-        color_mode = configs.color_mode,
-        class_mode = configs.class_mode,
-        )
+    def create_data_generator_from_directory(self, directory, generator):
+        if generator == "train":
+            generated_generator = self.training_data_generator.flow_from_directory(
+            directory = directory,
+            target_size = (configs.img_width, configs.img_height),
+            batch_size = configs.batch_size,
+            color_mode = configs.color_mode,
+            class_mode = configs.class_mode,
+            )
+        elif generator == "validate":
+            generated_generator = self.validation_data_generator.flow_from_directory(
+                directory = directory,
+                target_size= (configs.img_width, configs.img_height),
+                batch_size=configs.batch_size,
+                color_mode=configs.color_mode,
+                class_mode=configs.class_mode,
+            )
+        else:
+            generated_generator = None
         
         return generated_generator
             
@@ -95,13 +112,13 @@ class VisionDataProcessor():
         
         model = Sequential()
          
-        model.add(Conv2D(32, (3, 3),
+        model.add(Conv2D(128, (1, 1),
             padding='same',
-            data_format='channels_first',
+            data_format='channels_last',
             input_shape=input_shape))
             # now: model.output_shape == (None, 64, 32, 32)
-        
-        model.add(Activation('relu'))
+
+        model.add(Activation('tanh'))
         
         model.add(MaxPooling2D(pool_size=(2, 2)))
         
@@ -119,11 +136,75 @@ class VisionDataProcessor():
             
         if configs.print_summary:
             model.summary()
-        model.compile(optimizer='rmsprop',
+
+        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+
+        model.compile(optimizer=sgd,
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
               
         self.model = model
+
+    def create_flat_keras_model(self):
+        #I want this to essentially be a linear/logistic regression
+        input_shape = (configs.img_width, configs.img_height, 3)
+
+        model = Sequential()
+
+        model.add(Conv2D, (3, 3),
+                         padding='same',
+                         data_format='channels_last',
+                         input_shape=input_shape)
+        # now: model.output_shape == (None, 64, 32, 32)
+
+        model.add(Dense(configs.nb_classes))
+
+        if configs.print_summary:
+            model.summary()
+        model.compile(optimizer='sgd',
+                      loss='sparse_categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        self.model = model
+
+    def create_doe_model(self):
+        model = Sequential()
+        model.add(Convolution2D(32, 3, 3, input_shape=input_shape))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        if conditional({{choice(["small", "large"])}}) == "large":
+            model.add(Convolution2D(32, 3, 3))
+            model.add(Activation('relu'))
+            model.add(MaxPooling2D(pool_size=(2, 2)))
+
+            model.add(Convolution2D(64, 3, 3, input_shape=input_shape))
+            model.add(Activation('relu'))
+            model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(Flatten())
+
+        model.add(Dense({{choice([75, 100])}}))
+        model.add(Activation('relu'))
+
+        if conditional({{choice(['extra', 'no_extra'])}}) == 'extra':
+            model.add(Dense(50))
+            model.add(Activation('relu'))
+
+        model.add(Dense({{choice([10, 20, 30])}}))
+        model.add(Activation('relu'))
+
+        model.add(Dropout({{uniform(0, 1)}}))
+        model.add(Dense(configs.nb_classes))
+        model.add(Activation('sigmoid'))
+
+        model.compile(
+            loss='categorical_crossentropy',
+            optimizer={{choice(['rmsprop', 'adam', 'sgd'])}},
+            metrics=['accuracy'])
+
+        if configs.print_summary:
+            model.summary()
 
     def fit_simple_keras_model(self):
         self.model.fit_generator(
@@ -154,7 +235,6 @@ class VisionDataProcessor():
 
     def save_trained_keras_model_to_file(self):
         self.model.save(configs.model_save_name)
-
 
     def inception_cross_train(self):
         # create the base pre-trained model
@@ -213,6 +293,7 @@ class VisionDataProcessor():
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
     dataprocessor.create_simple_keras_model()
+    #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()
     dataprocessor.fit_simple_keras_model()
     dataprocessor.save_trained_keras_model_to_file()

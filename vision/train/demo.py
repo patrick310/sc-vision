@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import configs
 
-def set_res(cap, x,y):
+def set_resolution(cap, x, y):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(x))
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(y))
     return str(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),str(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -26,14 +26,14 @@ else:
 counter = 0
 prediction = "debug"
 
-set_res(vc, 1920, 1080)
+set_resolution(vc, 1920, 1080)
 
 while rval:
     file_name = str(counter) + ".jpg"
     rval, frame = vc.read()
     oframe = frame
 
-    prediction = model.predict(format_image_for_network(frame), batch_size = 1, verbose = 0)[0]
+    prediction = model.predict(format_image_for_network(frame), batch_size = 1, verbose = 0)
     print("The class was " + str(prediction))
     cv2.putText(frame, "The image shows {}".format(prediction[0]) + " and the size was " + str(frame.shape),
                 (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 3)
