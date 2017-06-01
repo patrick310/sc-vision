@@ -33,9 +33,11 @@ class VisionDataProcessor():
         height_shift_range = configs.height_shift_range,
         vertical_flip = configs.vertical_flip,
         horizontal_flip = configs.horizontal_flip,
+        rescale=1./255,
+        fill_mode = 'nearest',
         )
 
-        self.input_shape = (configs.img_width, configs.img_height, 1)
+        self.input_shape = (configs.img_width, configs.img_height, 3)
 
         self.validation_data_generator = ImageDataGenerator()
         
@@ -111,52 +113,54 @@ class VisionDataProcessor():
             sys.stdout.write("  " + str(counter) + "/" + str(configs.nb_test_images) + "\r")
             sys.stdout.flush()
         
-    def create_simple_keras_model(self):
+    def create_simple_shallow_binary_model(self):
         
         model = Sequential()
          
-        model.add(Conv2D(16, (3, 3),
+        model.add(Conv2D(24, (3, 3),
             padding='same',
             data_format='channels_last',
+            strides=2,
             input_shape=self.input_shape))
 
-        model.add(Activation('tanh'))
-        
-        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Activation('relu'))
+
+        model.add(MaxPooling2D(pool_size=(4, 4)))
         
         model.add(Flatten())
-        model.add(Dense(75))
-        model.add(Dense(40))
-        model.add(Dense(10))
+        model.add(Dense(75,activation='relu'))
+        model.add(Dense(40,activation='relu'))
+        model.add(Dense(10,activation='relu'))
+
+        model.add(Dropout(0.5))
         
-        model.add(Activation('relu'))
-        
-        model.add(Dropout(0.75))
-        
-        model.add(Dense(configs.nb_classes))
-        model.add(Activation('sigmoid'))
+        model.add(Dense(configs.nb_classes, activation='sigmoid'))
+        #model.add(Activation('sigmoid'))
             
         if configs.print_summary:
             model.summary()
 
         sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
 
-        model.compile(optimizer=sgd,
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
+        model.compile(optimizer='Nadam',
+              loss='binary_crossentropy',
+              metrics=['binary_accuracy'])
               
         self.model = model
 
     def create_flat_keras_model(self):
         #I want this to essentially be a linear/logistic regression
-        input_shape = (configs.img_width, configs.img_height, 3)
 
         model = Sequential()
 
-        model.add(Conv2D, (3, 3),
+        model.add(Conv2D(12, (2, 2),
                          padding='same',
                          data_format='channels_last',
-                         input_shape=input_shape)
+                         input_shape=self.input_shape))
+
+        model.add(Activation('relu'))
+
+        model.add(Flatten())
         # now: model.output_shape == (None, 64, 32, 32)
 
         model.add(Dense(configs.nb_classes))
@@ -332,7 +336,7 @@ class VisionDataProcessor():
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
-    dataprocessor.create_simple_keras_model()
+    dataprocessor.create_simple_shallow_binary_model()
     #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()

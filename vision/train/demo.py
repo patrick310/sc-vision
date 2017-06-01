@@ -16,6 +16,8 @@ def format_image_for_network(image):
 
 model = load_model(configs.model_save_name)
 
+class_labels = ['Not Patrick','Patrick']
+
 cv2.namedWindow("preview")
 vc = cv2.VideoCapture(0)
 
@@ -35,8 +37,8 @@ while rval:
     oframe = frame.copy()
 
     prediction = model.predict(format_image_for_network(frame))
-    print("The class was " + str(prediction))
-    cv2.putText(frame, "The image shows {}".format(prediction[0]) + " and the size was " + str(frame.shape),
+    print("The class was " + str(prediction[0]))
+    cv2.putText(frame, "The image shows {}".format(class_labels[int(prediction[0][0])]),
                 (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 3)
     cv2.imshow("preview", frame)
     key = cv2.waitKey(20)
