@@ -16,25 +16,26 @@
     "vertical_flip" : false,
     "horizontal_flip" : true,
     "color_mode" : "rgb",
-    "class_mode" : null,
+    "class_mode" : "binary",
     "fill_mode" : "nearest",
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 6000,
+    "nb_test_images" : 21777,
     "test_dir" : "data/train",
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 800,
+    "nb_val_images" : 3219,
     "val_dir" : "data/validate"
   },
 
   "training" : {
     "batch_size" : 16,
     "val_batch_size" : 5,
-    "nb_epoch"   : 50,
+    "nb_epoch"   : 10,
     "verbose" : true,
     "print_summary" : true
   },
 
   "pretrained" : {
+    "vgg16_weights_path" : "vgg16_weights.h5",
     "vgg16_top_model_weights_path" : "bottleneck_fc_model.h5"
   },
 

@@ -46,19 +46,15 @@ class VisionDataProcessor():
                                                                          'train')
         self.validation_generator = self.create_data_generator_from_directory(configs.val_dir,
                                                                               'validate')
-        self.ordered_train_generator = self.create_data_generator_from_directory(configs.test_dir,
-                                                                                 'train', False)
-        self.ordered_validation_generator = self.create_data_generator_from_directory(configs.val_dir,
-                                                                                      'validate', False)
 
-    def create_data_generator_from_directory(self, directory, generator, shuffle=True):
+    def create_data_generator_from_directory(self, directory, generator, shuffle=True, class_mode=configs.class_mode):
         if generator == "train":
             generated_generator = self.training_data_generator.flow_from_directory(
             directory = directory,
             target_size = (configs.img_width, configs.img_height),
             batch_size = configs.batch_size,
             color_mode = configs.color_mode,
-            class_mode = configs.class_mode,
+            class_mode = class_mode,
             shuffle=shuffle,
             )
         elif generator == "validate":
@@ -67,7 +63,7 @@ class VisionDataProcessor():
                 target_size= (configs.img_width, configs.img_height),
                 batch_size=configs.batch_size,
                 color_mode=configs.color_mode,
-                class_mode=configs.class_mode,
+                class_mode=class_mode,
                 shuffle=shuffle,
             )
         else:
@@ -123,16 +119,27 @@ class VisionDataProcessor():
             sys.stdout.flush()
 
     def create_binary_vgg16_model(self):
+        #https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
         def save_bottleneck_features():
 
             # build the VGG16 network
             self.model = applications.VGG16(include_top=False, weights='imagenet')
+
+            self.ordered_train_generator = self.create_data_generator_from_directory(configs.test_dir,
+                                                                                     'train',
+                                                                                     False,
+                                                                                     class_mode=None)
 
 
             bottleneck_features_train = self.model.predict_generator(
                 self.ordered_train_generator, configs.nb_test_images // configs.batch_size)
             np.save(open('bottleneck_features_train.npy', 'wb'),
                     bottleneck_features_train)
+
+            self.ordered_validation_generator = self.create_data_generator_from_directory(configs.val_dir,
+                                                                                          'validate',
+                                                                                          False,
+                                                                                          class_mode=None)
 
             bottleneck_features_validation = self.model.predict_generator(
                 self.ordered_validation_generator, configs.nb_val_images // configs.batch_size)
@@ -142,11 +149,11 @@ class VisionDataProcessor():
         def train_top_model():
             train_data = np.load(open('bottleneck_features_train.npy','rb'))
             train_labels = np.array(
-                [0] * (int(configs.nb_test_images / 2)) + [1] * (int(configs.nb_test_images / 2)))
+                [0] * (configs.nb_test_images // 2) + [1] * (configs.nb_test_images // 2))
 
             validation_data = np.load(open('bottleneck_features_validation.npy','rb'))
             validation_labels = np.array(
-                [0] * (int(configs.nb_val_images / 2)) + [1] * int((configs.nb_val_images / 2)))
+                [0] * (configs.nb_val_images // 2) + [1] * (configs.nb_val_images // 2))
 
             self.create_flat_binary_fc_model(train_data.shape[1:])
 
@@ -156,8 +163,43 @@ class VisionDataProcessor():
                       validation_data=(validation_data, validation_labels))
             self.model.save_weights(configs.vgg16_top_model_weights_path)
 
+        def fine_tune_top_model():
+            # build the VGG16 network
+            base_model = applications.VGG16(weights='imagenet', include_top=False, input_shape=self.input_shape)
+            print('Model loaded.')
+
+            # build a classifier model to put on top of the convolutional model
+            top_model = Sequential()
+            top_model.add(Flatten(input_shape=base_model.output_shape[1:]))
+            top_model.add(Dense(256, activation='relu'))
+            top_model.add(Dropout(0.5))
+            top_model.add(Dense(1, activation='sigmoid'))
+
+            # note that it is necessary to start with a fully-trained
+            # classifier, including the top classifier,
+            # in order to successfully do fine-tuning
+            top_model.load_weights(configs.vgg16_top_model_weights_path)
+
+            # add the model on top of the convolutional base
+            model = Model(inputs=base_model.input, outputs=top_model(base_model.output))
+
+            # set the first 25 layers (up to the last conv block)
+            # to non-trainable (weights will not be updated)
+            for layer in model.layers[:15]:
+                layer.trainable = False
+
+            # compile the model with a SGD/momentum optimizer
+            # and a very slow learning rate.
+            model.compile(loss='binary_crossentropy',
+                          optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
+                          metrics=['accuracy'])
+
+            self.model = model
+
         save_bottleneck_features()
         train_top_model()
+        fine_tune_top_model()
+        self.fit_simple_keras_model()
 
     def create_simple_binary_model(self):
         
@@ -294,6 +336,16 @@ class VisionDataProcessor():
             steps_per_epoch=int(configs.nb_test_images/configs.batch_size),
             epochs=configs.nb_epoch,
             validation_data=self.validation_generator, 
+            validation_steps=int(configs.nb_val_images/configs.val_batch_size),
+            verbose=1
+            )
+
+    def fit_ordered_keras_model(self):
+        self.model.fit_generator(
+            self.ordered_train_generator,
+            steps_per_epoch=int(configs.nb_test_images/configs.batch_size),
+            epochs=configs.nb_epoch,
+            validation_data=self.ordered_validation_generator,
             validation_steps=int(configs.nb_val_images/configs.val_batch_size)
             )
 
