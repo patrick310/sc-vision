@@ -36,7 +36,9 @@ val_fname = configs["preprocessing"]["val_fname"]
 nb_val_images = configs["preprocessing"]["nb_val_images"]
 val_dir = configs["preprocessing"]["val_dir"]
 
+
 batch_size = configs["training"]["batch_size"]
+val_batch_size = configs["training"]["val_batch_size"]
 nb_epoch = configs["training"]["nb_epoch"]
 verbose = configs["training"]["verbose"]
 print_summary = configs["training"]["print_summary"]

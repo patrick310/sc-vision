@@ -5,6 +5,7 @@ from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers.convolutional import Conv2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.applications.inception_v3 import InceptionV3
+from keras import applications
 from keras import optimizers
 from keras.preprocessing import image
 from keras.models import Model
@@ -112,30 +113,70 @@ class VisionDataProcessor():
             import sys
             sys.stdout.write("  " + str(counter) + "/" + str(configs.nb_test_images) + "\r")
             sys.stdout.flush()
-        
+
+    def create_vgg16_model(self):
+        # path to the model weights files.
+        weights_path = '../keras/examples/vgg16_weights.h5'
+        top_model_weights_path = 'fc_model.h5'
+        # dimensions of our images.
+        img_width, img_height = 150, 150
+
+        # build the VGG16 network
+        model = applications.VGG16(weights='imagenet', include_top=False)
+        print('Model loaded.')
+
+        # build a classifier model to put on top of the convolutional model
+        top_model = Sequential()
+        top_model.add(Flatten(input_shape=model.output_shape[1:]))
+        top_model.add(Dense(256, activation='relu'))
+        top_model.add(Dropout(0.5))
+        top_model.add(Dense(1, activation='sigmoid'))
+
+        # note that it is necessary to start with a fully-trained
+        # classifier, including the top classifier,
+        # in order to successfully do fine-tuning
+        top_model.load_weights(top_model_weights_path)
+
+        # add the model on top of the convolutional base
+        model.add(top_model)
+
+        # set the first 25 layers (up to the last conv block)
+        # to non-trainable (weights will not be updated)
+        for layer in model.layers[:25]:
+            layer.trainable = False
+
+        # compile the model with a SGD/momentum optimizer
+        # and a very slow learning rate.
+        model.compile(loss='binary_crossentropy',
+                      optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
+                      metrics=['accuracy'])
+
     def create_simple_shallow_binary_model(self):
         
         model = Sequential()
          
-        model.add(Conv2D(24, (3, 3),
+        model.add(Conv2D(32, (3, 3),
             padding='same',
             data_format='channels_last',
-            strides=2,
+            strides=1,
             input_shape=self.input_shape))
-
         model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
 
-        model.add(MaxPooling2D(pool_size=(4, 4)))
+        model.add(Conv2D(64, (3, 3)))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(Conv2D(64, (3, 3)))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
         
         model.add(Flatten())
-        model.add(Dense(75,activation='relu'))
-        model.add(Dense(40,activation='relu'))
-        model.add(Dense(10,activation='relu'))
-
+        model.add(Dense(64))
+        model.add(Activation('relu'))
         model.add(Dropout(0.5))
-        
-        model.add(Dense(configs.nb_classes, activation='sigmoid'))
-        #model.add(Activation('sigmoid'))
+        model.add(Dense(configs.nb_classes))
+        model.add(Activation('sigmoid'))
             
         if configs.print_summary:
             model.summary()
@@ -255,7 +296,7 @@ class VisionDataProcessor():
             steps_per_epoch=int(configs.nb_test_images/configs.batch_size),
             epochs=configs.nb_epoch,
             validation_data=self.validation_generator, 
-            validation_steps=int(configs.nb_val_images/configs.batch_size)
+            validation_steps=int(configs.nb_val_images/configs.val_batch_size)
             )
 
     def fit_inception_model(self):
@@ -336,6 +377,7 @@ class VisionDataProcessor():
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
+    #dataprocessor.create_vgg16_model()
     dataprocessor.create_simple_shallow_binary_model()
     #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
