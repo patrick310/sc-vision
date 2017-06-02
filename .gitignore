@@ -19,6 +19,7 @@ __pycache__/
 *.h5
 *.hdf5
 *.db
+*.npy
 
 # C extensions
 *.so

@@ -42,10 +42,16 @@ class VisionDataProcessor():
 
         self.validation_data_generator = ImageDataGenerator()
         
-        self.train_generator = self.create_data_generator_from_directory(configs.test_dir, 'train')
-        self.validation_generator = self.create_data_generator_from_directory(configs.val_dir, 'validate')
-    
-    def create_data_generator_from_directory(self, directory, generator):
+        self.train_generator = self.create_data_generator_from_directory(configs.test_dir,
+                                                                         'train')
+        self.validation_generator = self.create_data_generator_from_directory(configs.val_dir,
+                                                                              'validate')
+        self.ordered_train_generator = self.create_data_generator_from_directory(configs.test_dir,
+                                                                                 'train', False)
+        self.ordered_validation_generator = self.create_data_generator_from_directory(configs.val_dir,
+                                                                                      'validate', False)
+
+    def create_data_generator_from_directory(self, directory, generator, shuffle=True):
         if generator == "train":
             generated_generator = self.training_data_generator.flow_from_directory(
             directory = directory,
@@ -53,6 +59,7 @@ class VisionDataProcessor():
             batch_size = configs.batch_size,
             color_mode = configs.color_mode,
             class_mode = configs.class_mode,
+            shuffle=shuffle,
             )
         elif generator == "validate":
             generated_generator = self.validation_data_generator.flow_from_directory(
@@ -61,6 +68,7 @@ class VisionDataProcessor():
                 batch_size=configs.batch_size,
                 color_mode=configs.color_mode,
                 class_mode=configs.class_mode,
+                shuffle=shuffle,
             )
         else:
             generated_generator = None
@@ -114,44 +122,44 @@ class VisionDataProcessor():
             sys.stdout.write("  " + str(counter) + "/" + str(configs.nb_test_images) + "\r")
             sys.stdout.flush()
 
-    def create_vgg16_model(self):
-        # path to the model weights files.
-        weights_path = '../keras/examples/vgg16_weights.h5'
-        top_model_weights_path = 'fc_model.h5'
-        # dimensions of our images.
-        img_width, img_height = 150, 150
+    def create_binary_vgg16_model(self):
+        def save_bottleneck_features():
 
-        # build the VGG16 network
-        model = applications.VGG16(weights='imagenet', include_top=False)
-        print('Model loaded.')
+            # build the VGG16 network
+            self.model = applications.VGG16(include_top=False, weights='imagenet')
 
-        # build a classifier model to put on top of the convolutional model
-        top_model = Sequential()
-        top_model.add(Flatten(input_shape=model.output_shape[1:]))
-        top_model.add(Dense(256, activation='relu'))
-        top_model.add(Dropout(0.5))
-        top_model.add(Dense(1, activation='sigmoid'))
 
-        # note that it is necessary to start with a fully-trained
-        # classifier, including the top classifier,
-        # in order to successfully do fine-tuning
-        top_model.load_weights(top_model_weights_path)
+            bottleneck_features_train = self.model.predict_generator(
+                self.ordered_train_generator, configs.nb_test_images // configs.batch_size)
+            np.save(open('bottleneck_features_train.npy', 'wb'),
+                    bottleneck_features_train)
 
-        # add the model on top of the convolutional base
-        model.add(top_model)
+            bottleneck_features_validation = self.model.predict_generator(
+                self.ordered_validation_generator, configs.nb_val_images // configs.batch_size)
+            np.save(open('bottleneck_features_validation.npy', 'wb'),
+                    bottleneck_features_validation)
 
-        # set the first 25 layers (up to the last conv block)
-        # to non-trainable (weights will not be updated)
-        for layer in model.layers[:25]:
-            layer.trainable = False
+        def train_top_model():
+            train_data = np.load(open('bottleneck_features_train.npy','rb'))
+            train_labels = np.array(
+                [0] * (int(configs.nb_test_images / 2)) + [1] * (int(configs.nb_test_images / 2)))
 
-        # compile the model with a SGD/momentum optimizer
-        # and a very slow learning rate.
-        model.compile(loss='binary_crossentropy',
-                      optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
-                      metrics=['accuracy'])
+            validation_data = np.load(open('bottleneck_features_validation.npy','rb'))
+            validation_labels = np.array(
+                [0] * (int(configs.nb_val_images / 2)) + [1] * int((configs.nb_val_images / 2)))
 
-    def create_simple_shallow_binary_model(self):
+            self.create_flat_binary_fc_model(train_data.shape[1:])
+
+            self.model.fit(train_data, train_labels,
+                      epochs=configs.nb_epoch,
+                      batch_size=configs.batch_size,
+                      validation_data=(validation_data, validation_labels))
+            self.model.save_weights(configs.vgg16_top_model_weights_path)
+
+        save_bottleneck_features()
+        train_top_model()
+
+    def create_simple_binary_model(self):
         
         model = Sequential()
          
@@ -189,27 +197,17 @@ class VisionDataProcessor():
               
         self.model = model
 
-    def create_flat_keras_model(self):
-        #I want this to essentially be a linear/logistic regression
-
+    def create_flat_binary_fc_model(self,input_shape=None):
+        if input_shape == None:
+            input_shape = self.input_shape
         model = Sequential()
+        model.add(Flatten(input_shape=input_shape))
+        model.add(Dense(256, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(1, activation='sigmoid'))
 
-        model.add(Conv2D(12, (2, 2),
-                         padding='same',
-                         data_format='channels_last',
-                         input_shape=self.input_shape))
-
-        model.add(Activation('relu'))
-
-        model.add(Flatten())
-        # now: model.output_shape == (None, 64, 32, 32)
-
-        model.add(Dense(configs.nb_classes))
-
-        if configs.print_summary:
-            model.summary()
-        model.compile(optimizer='sgd',
-                      loss='sparse_categorical_crossentropy',
+        model.compile(optimizer='rmsprop',
+                      loss='binary_crossentropy',
                       metrics=['accuracy'])
 
         self.model = model
@@ -377,10 +375,11 @@ class VisionDataProcessor():
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
-    #dataprocessor.create_vgg16_model()
-    dataprocessor.create_simple_shallow_binary_model()
+    dataprocessor.create_binary_vgg16_model()
+    #dataprocessor.create_simple_shallow_binary_model()
+    #dataprocessor.create_flat_binary_fc_model()
     #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()
-    dataprocessor.fit_simple_keras_model()
-    dataprocessor.save_trained_keras_model_to_file()
+    #dataprocessor.fit_simple_keras_model()
+    #dataprocessor.save_trained_keras_model_to_file()

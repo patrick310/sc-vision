@@ -43,4 +43,6 @@ nb_epoch = configs["training"]["nb_epoch"]
 verbose = configs["training"]["verbose"]
 print_summary = configs["training"]["print_summary"]
 
+vgg16_top_model_weights_path = configs["pretrained"]["vgg16_top_model_weights_path"]
+
 max_evals = configs["hyperas"]["max_evals"]

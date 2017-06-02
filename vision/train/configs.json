@@ -16,7 +16,7 @@
     "vertical_flip" : false,
     "horizontal_flip" : true,
     "color_mode" : "rgb",
-    "class_mode" : "binary",
+    "class_mode" : null,
     "fill_mode" : "nearest",
     "test_fname" : "test_data.hdf5",
     "nb_test_images" : 6000,
@@ -32,6 +32,10 @@
     "nb_epoch"   : 50,
     "verbose" : true,
     "print_summary" : true
+  },
+
+  "pretrained" : {
+    "vgg16_top_model_weights_path" : "bottleneck_fc_model.h5"
   },
 
 
