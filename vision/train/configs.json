@@ -22,14 +22,14 @@
     "nb_test_images" : 21777,
     "test_dir" : "data/train",
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 3219,
+    "nb_val_images" : 3217,
     "val_dir" : "data/validate"
   },
 
   "training" : {
     "batch_size" : 16,
     "val_batch_size" : 5,
-    "nb_epoch"   : 10,
+    "nb_epoch"   : 5,
     "verbose" : true,
     "print_summary" : true
   },
