@@ -8,6 +8,7 @@ __pycache__/
 **/all_data/
 **/data/
 **/odata/
+**/dc_train_data/
 
 **/visualize/*
 
@@ -42,6 +43,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.zip
 
 
 # PyInstaller
