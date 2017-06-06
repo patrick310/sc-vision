@@ -20,10 +20,10 @@
     "fill_mode" : "nearest",
     "test_fname" : "test_data.hdf5",
     "nb_test_images" : 21777,
-    "test_dir" : "data/train",
+    "test_dir" : "dc_train_data/train",
     "val_fname"  : "val_data.hdf5",
     "nb_val_images" : 3217,
-    "val_dir" : "data/validate"
+    "val_dir" : "dc_train_data/validate"
   },
 
   "training" : {
