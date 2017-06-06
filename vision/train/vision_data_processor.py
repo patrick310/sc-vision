@@ -50,6 +50,7 @@ class VisionDataProcessor():
 
     def create_data_generator_from_directory(self, directory, generator, shuffle=True, class_mode=configs.class_mode):
         if generator == "train":
+<<<<<<< HEAD
             generated_generator =\
                 self.training_data_generator.flow_from_directory(
                     directory = directory,
@@ -60,6 +61,17 @@ class VisionDataProcessor():
                     shuffle=shuffle,
                 )
 
+=======
+            generated_generator = self.training_data_generator.flow_from_directory(
+            directory = directory,
+            target_size = (configs.img_width, configs.img_height),
+            batch_size = configs.batch_size,
+            color_mode = configs.color_mode,
+            class_mode = class_mode,
+            shuffle=shuffle,
+			save_to_dir = 'visualize'
+            )
+>>>>>>> ddda13516910707f801b93a9e5a31fcba98680a1
         elif generator == "validate":
             generated_generator = self.validation_data_generator.flow_from_directory(
                 directory=directory,
@@ -310,6 +322,18 @@ class VisionDataProcessor():
         return None
         
 if __name__ == '__main__':
+<<<<<<< HEAD
     data_processor = VisionDataProcessor()
     data_processor.create_binary_vgg16_model()
     data_processor.save_model_to_file()
+=======
+    dataprocessor = VisionDataProcessor()
+    #dataprocessor.create_binary_vgg16_model()
+    dataprocessor.create_simple_binary_model()
+    #dataprocessor.create_flat_binary_fc_model()
+    #dataprocessor.create_doe_model()
+    #dataprocessor.create_flat_keras_model()
+    #dataprocessor.inception_cross_train()
+    dataprocessor.fit_simple_keras_model()
+    dataprocessor.save_trained_keras_model_to_file()
+>>>>>>> ddda13516910707f801b93a9e5a31fcba98680a1

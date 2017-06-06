@@ -19,7 +19,7 @@ def format_image_for_network(image):
 class_labels = ['Patrick','Lamby']
 
 cv2.namedWindow("preview")
-vc = cv2.VideoCapture(0)
+vc = cv2.VideoCapture(1)
 
 if vc.isOpened(): # try to get the first frame
     rval, frame = vc.read()
@@ -42,10 +42,15 @@ while rval:
        #         (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 3)
     cv2.imshow("preview", frame)
     key = cv2.waitKey(20)
-    if key == 32:
-        cv2.imwrite(file_name , oframe)
+    if key == 97:
+        cv2.imwrite("newData/Two/" + file_name , oframe)
+        counter = counter + 1
+    if key == 108:
+        cv2.imwrite("newData/Four/" + file_name , oframe)
         counter = counter + 1
     if key == 27: # exit on ESC
         break
 cv2.destroyWindow("preview")
+
+
 
