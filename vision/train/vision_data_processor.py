@@ -56,6 +56,7 @@ class VisionDataProcessor():
             color_mode = configs.color_mode,
             class_mode = class_mode,
             shuffle=shuffle,
+			save_to_dir = 'visualize'
             )
         elif generator == "validate":
             generated_generator = self.validation_data_generator.flow_from_directory(
@@ -427,11 +428,11 @@ class VisionDataProcessor():
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
-    dataprocessor.create_binary_vgg16_model()
-    #dataprocessor.create_simple_shallow_binary_model()
+    #dataprocessor.create_binary_vgg16_model()
+    dataprocessor.create_simple_binary_model()
     #dataprocessor.create_flat_binary_fc_model()
     #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()
-    #dataprocessor.fit_simple_keras_model()
-    #dataprocessor.save_trained_keras_model_to_file()
+    dataprocessor.fit_simple_keras_model()
+    dataprocessor.save_trained_keras_model_to_file()
