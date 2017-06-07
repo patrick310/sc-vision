@@ -24,12 +24,11 @@ def format_image_for_network(image):
     return np_frame
 
 
-#model = load_model(configs.model_save_name)
-model = VGG16(weights='imagenet', include_top=True)
+model = load_model(configs.model_save_name)
+#model = VGG16(weights='imagenet', include_top=True)
 
-layer_name = 'tiger'
-#layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == layer_name][0]
-layer_idx = (1)
+layer_name = 'pos'
+layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == layer_name][0]
 cv2.namedWindow("preview")
 vc = cv2.VideoCapture(0)
 
