@@ -1,5 +1,6 @@
 import cv2
 from keras.models import load_model
+from vis.visualization import visualize_saliency
 import numpy as np
 from PIL import Image
 import configs
@@ -37,15 +38,19 @@ set_resolution(vc, 224, 224)
 while rval:
     rval, frame = vc.read()
     oframe = frame.copy()
-    try:
-        grad_image = Image.fromarray(grad_activation_map(format_image_for_network(frame)))
-        cv2.imshow("preview", grad_image)
-        print('grad image ', type(grad_image))
-        key = cv2.waitKey(20)
-        if key == 27:  # exit on ESC
-            break
-    except ValueError:
-        print("Value Error",)
+
+    pred_class = np.argmax(model.predict(format_image_for_network(frame)))
+    image = visualize_saliency(
+        model=model,
+        layer_idx=[0],
+        filter_indices=[pred_class],
+        seed_img=format_image_for_network(frame))
+    cv2.imshow("preview", image)
+    print('grad image ', type(image))
+    key = cv2.waitKey(20)
+    if key == 27:  # exit on ESC
+        break
+
 cv2.destroyWindow("preview")
 
 

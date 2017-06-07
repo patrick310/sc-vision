@@ -19,7 +19,7 @@
     "class_mode" : "binary",
     "fill_mode" : "nearest",
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 1000,
+    "nb_test_images" : 100,
     "test_dir" : "face_data/train",
     "val_fname"  : "val_data.hdf5",
     "nb_val_images" : 40,
@@ -27,9 +27,9 @@
   },
 
   "training" : {
-    "batch_size" : 5,
+    "batch_size" : 3,
     "val_batch_size" : 1,
-    "nb_epoch"   : 3,
+    "nb_epoch"   : 1,
     "verbose" : true,
     "print_summary" : true
   },
