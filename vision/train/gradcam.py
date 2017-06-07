@@ -123,7 +123,9 @@ def grad_activation_map(preprocessed_input):
     print('%s (%s) with probability %.2f' % (top_1[1], top_1[0], top_1[2]))
 
     predicted_class = np.argmax(predictions)
+    print('predicted class')
     cam, heatmap = grad_cam(model, preprocessed_input, predicted_class, "block5_conv3")
+    print('writing file')
     cv2.imwrite("gradcam.jpg", cam)
 
     register_gradient()
@@ -132,4 +134,4 @@ def grad_activation_map(preprocessed_input):
     saliency = saliency_fn([preprocessed_input, 0])
     gradcam = saliency[0] * heatmap[..., np.newaxis]
     cv2.imwrite("guided_gradcam.jpg", deprocess_image(gradcam))
-    return deprocess_image(gradcam)
+    return cam
