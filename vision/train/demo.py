@@ -19,7 +19,7 @@ model = load_model(configs.model_save_name)
 class_labels = ['No Person','People']
 
 cv2.namedWindow("preview")
-vc = cv2.VideoCapture(1)
+vc = cv2.VideoCapture(0)
 
 if vc.isOpened(): # try to get the first frame
     rval, frame = vc.read()
