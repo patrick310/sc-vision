@@ -19,7 +19,7 @@ def format_image_for_network(image):
 class_labels = ['Patrick','Lamby']
 
 cv2.namedWindow("preview")
-vc = cv2.VideoCapture(1)
+vc = cv2.VideoCapture(0)
 
 if vc.isOpened(): # try to get the first frame
     rval, frame = vc.read()

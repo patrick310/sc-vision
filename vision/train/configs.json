@@ -7,29 +7,29 @@
   },
 
   "preprocessing" : {
-    "shear_range" : 0.2,
+    "shear_range" : 0,
     "zoom_range" : 0.2,
     "zca_whitening" : false,
-    "rotation_range" : 20,
+    "rotation_range" : 100,
     "width_shift_range" : 0.0,
-    "height_shift_range" : 0.15,
-    "vertical_flip" : true,
+    "height_shift_range" : 0.0,
+    "vertical_flip" : false,
     "horizontal_flip" : false,
     "color_mode" : "rgb",
     "class_mode" : "binary",
     "fill_mode" : "nearest",
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 21777,
+    "nb_test_images" : 1000,
     "test_dir" : "dc_train_data/train",
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 3217,
+    "nb_val_images" : 40,
     "val_dir" : "dc_train_data/validate"
   },
 
   "training" : {
-    "batch_size" : 2,
+    "batch_size" : 5,
     "val_batch_size" : 1,
-    "nb_epoch"   : 20,
+    "nb_epoch"   : 3,
     "verbose" : true,
     "print_summary" : true
   },
