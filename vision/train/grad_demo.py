@@ -25,7 +25,9 @@ def format_image_for_network(image):
 
 
 model = load_model(configs.model_save_name)
-#model = VGG16(weights='imagenet', include_top=True)
+model = VGG16(weights='imagenet', include_top=True)
+print('Model loaded.')
+
 
 layer_name = 'predictions'
 layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == layer_name][0]

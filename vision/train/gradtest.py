@@ -20,7 +20,7 @@ layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == laye
 
 # Images corresponding to tiger, penguin, dumbbell, speedboat, spider
 image_paths = [
-    "0.jpg",
+    "image.jpg",
 ]
 
 heatmaps = []

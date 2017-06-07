@@ -16,10 +16,10 @@ def format_image_for_network(image):
 
 model = load_model(configs.model_save_name)
 
-class_labels = ['pos','neg']
+class_labels = ['No Person','People']
 
 cv2.namedWindow("preview")
-vc = cv2.VideoCapture(0)
+vc = cv2.VideoCapture(1)
 
 if vc.isOpened(): # try to get the first frame
     rval, frame = vc.read()
