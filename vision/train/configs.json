@@ -1,8 +1,8 @@
 {
   "global" : {
     "nb_classes" : 1,
-    "img_width" : 224,
-    "img_height" : 224,
+    "img_width" : 128,
+    "img_height" : 128,
     "model_save_name" : "model_output.h5"
   },
 
@@ -19,11 +19,11 @@
     "class_mode" : "binary",
     "fill_mode" : "nearest",
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 660,
-    "test_dir" : "vis_data",
+    "nb_test_images" : 1841,
+    "test_dir" : "INRIAPerson/Train",
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 660,
-    "val_dir" : "vis_data"
+    "nb_val_images" : 741,
+    "val_dir" : "INRIAPerson/Test"
   },
 
   "training" : {
