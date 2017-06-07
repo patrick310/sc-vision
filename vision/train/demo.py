@@ -19,7 +19,7 @@ model = load_model(configs.model_save_name)
 class_labels = ['Patrick','Lamby']
 
 cv2.namedWindow("preview")
-vc = cv2.VideoCapture(0)
+vc = cv2.VideoCapture(1)
 
 if vc.isOpened(): # try to get the first frame
     rval, frame = vc.read()
@@ -43,10 +43,10 @@ while rval:
     cv2.imshow("preview", frame)
     key = cv2.waitKey(20)
     if key == 97:
-        cv2.imwrite("newData/Two/" + file_name , oframe)
+        cv2.imwrite("newData/pos/" + file_name , oframe)
         counter = counter + 1
     if key == 108:
-        cv2.imwrite("newData/Four/" + file_name , oframe)
+        cv2.imwrite("newData/neg/" + file_name , oframe)
         counter = counter + 1
     if key == 27: # exit on ESC
         break

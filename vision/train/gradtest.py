@@ -7,6 +7,7 @@ from keras.applications.imagenet_utils import preprocess_input
 from vis.utils import utils
 from vis.utils.vggnet import VGG16
 from vis.visualization import visualize_saliency
+from vis.visualization import visualize_cam
 
 # Build the VGG16 network with ImageNet weights
 model = VGG16(weights='imagenet', include_top=True)
@@ -19,11 +20,7 @@ layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == laye
 
 # Images corresponding to tiger, penguin, dumbbell, speedboat, spider
 image_paths = [
-    "http://www.tigerfdn.com/wp-content/uploads/2016/05/How-Much-Does-A-Tiger-Weigh.jpg",
-    "http://www.slate.com/content/dam/slate/articles/health_and_science/wild_things/2013/10/131025_WILD_AdeliePenguin.jpg.CROP.promo-mediumlarge.jpg",
-    "https://www.kshs.org/cool2/graphics/dumbbell1lg.jpg",
-    "http://tampaspeedboatadventures.com/wp-content/uploads/2010/10/DSC07011.jpg",
-    "http://ichef-1.bbci.co.uk/news/660/cpsprodpb/1C24/production/_85540270_85540265.jpg"
+    "0.jpg",
 ]
 
 heatmaps = []

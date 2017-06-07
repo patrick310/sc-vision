@@ -47,7 +47,7 @@ def get_args():
     parser.add_argument("--image_path", type = str, help = "Path of an image to run the network on")
     parser.add_argument("--output_path", type = str, default = "heatmap.jpg", help = "Path of an image to run the network on")
     parser.add_argument("--model_path", type = str, help = "Path of the trained model")
-    parser.add_argument("--dataset_path", type = str, help = \
+    parser.add_argument("--dataset_path",default="C:\\Users\\pweber\\sc-vision\\vision\\train\\newData\\", type = str, help = \
         'Path to image dataset. Should have pos/neg folders, like in the inria person dataset. \
         http://pascal.inrialpes.fr/data/human/')
     args = parser.parse_args()
