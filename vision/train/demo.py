@@ -3,6 +3,7 @@ from keras.models import load_model
 import numpy as np
 from PIL import Image
 import configs
+from grad-cam.py import
 
 def set_resolution(cap, x, y):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(x))
@@ -14,7 +15,7 @@ def format_image_for_network(image):
     np_frame = np.expand_dims(np.asarray(image), axis=0)
     return np_frame
 
-#model = load_model(configs.model_save_name)
+model = load_model(configs.model_save_name)
 
 class_labels = ['Patrick','Lamby']
 
@@ -36,10 +37,10 @@ while rval:
     rval, frame = vc.read()
     oframe = frame.copy()
 
-    #prediction = model.predict(format_image_for_network(frame))
-    #print("The class was " + str(prediction[0]))
-    #cv2.putText(frame, "The image shows {}".format(class_labels[int(prediction[0][0])]),
-       #         (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 3)
+    prediction = model.predict(format_image_for_network(frame))
+    print("The class was " + str(prediction[0]))
+    cv2.putText(frame, "The image shows {}".format(class_labels[int(prediction[0][0])]),
+                (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 3)
     cv2.imshow("preview", frame)
     key = cv2.waitKey(20)
     if key == 97:
