@@ -25,9 +25,12 @@ def format_image_for_network(image):
 
 
 model = load_model(configs.model_save_name)
-#model = VGG16(weights='imagenet', include_top=True)
+model = VGG16(weights='imagenet', include_top=True)
+print('Model loaded.')
 
-layer_name = 'pos'
+# The name of the layer we want to visualize
+# (see model definition in vggnet.py)
+layer_name = 'predictions'
 layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == layer_name][0]
 cv2.namedWindow("preview")
 vc = cv2.VideoCapture(0)
