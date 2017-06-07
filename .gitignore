@@ -9,6 +9,7 @@ __pycache__/
 **/data/
 **/odata/
 **/dc_train_data/
+**/INRIAPerson/
 
 **/visualize/*
 
@@ -22,6 +23,7 @@ __pycache__/
 *.db
 *.avi
 *.npy
+*.tar
 
 # C extensions
 *.so

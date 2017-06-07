@@ -19,7 +19,7 @@ model = load_model(configs.model_save_name)
 class_labels = ['Patrick','Lamby']
 
 cv2.namedWindow("preview")
-vc = cv2.VideoCapture(0)
+vc = cv2.VideoCapture('output.avi')
 
 if vc.isOpened(): # try to get the first frame
     rval, frame = vc.read()
@@ -31,7 +31,7 @@ prediction = "debug"
 
 set_resolution(vc, 1920, 1080)
 
-while rval:
+while(vc.isOpened()):
     file_name = str(counter) + ".jpg"
     rval, frame = vc.read()
     oframe = frame.copy()

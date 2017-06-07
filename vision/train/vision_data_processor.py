@@ -314,11 +314,11 @@ class VisionDataProcessor():
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
-    #dataprocessor.create_binary_vgg16_model()
-    dataprocessor.create_simple_binary_model()
+    dataprocessor.create_binary_vgg16_model()
+    #dataprocessor.create_simple_binary_model()
     #dataprocessor.create_flat_binary_fc_model()
     #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()
-    dataprocessor.fit_model()
+    #dataprocessor.fit_model()
     dataprocessor.save_model_to_file()

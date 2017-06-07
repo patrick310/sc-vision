@@ -10,8 +10,8 @@
     "shear_range" : 0,
     "zoom_range" : 0.2,
     "zca_whitening" : false,
-    "rotation_range" : 100,
-    "width_shift_range" : 0.0,
+    "rotation_range" : 5,
+    "width_shift_range" : 0.05,
     "height_shift_range" : 0.0,
     "vertical_flip" : false,
     "horizontal_flip" : false,
@@ -19,17 +19,17 @@
     "class_mode" : "binary",
     "fill_mode" : "nearest",
     "test_fname" : "test_data.hdf5",
-    "nb_test_images" : 100,
-    "test_dir" : "face_data/train",
+    "nb_test_images" : 660,
+    "test_dir" : "vis_data",
     "val_fname"  : "val_data.hdf5",
-    "nb_val_images" : 40,
-    "val_dir" : "face_data/validate"
+    "nb_val_images" : 660,
+    "val_dir" : "vis_data"
   },
 
   "training" : {
-    "batch_size" : 3,
-    "val_batch_size" : 1,
-    "nb_epoch"   : 1,
+    "batch_size" : 10,
+    "val_batch_size" : 3,
+    "nb_epoch"   : 5,
     "verbose" : true,
     "print_summary" : true
   },
