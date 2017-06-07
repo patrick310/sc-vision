@@ -27,7 +27,7 @@ def format_image_for_network(image):
 model = load_model(configs.model_save_name)
 #model = VGG16(weights='imagenet', include_top=True)
 
-layer_name = 'pos'
+layer_name = 'predictions'
 layer_idx = [idx for idx, layer in enumerate(model.layers) if layer.name == layer_name][0]
 cv2.namedWindow("preview")
 vc = cv2.VideoCapture(0)
@@ -51,7 +51,7 @@ while rval:
 
     bgr_img = utils.bgr2rgb(seed_img)
 
-    img_input = format_image_for_network(bgr_img)
+    img_input = format_image_for_network(frame)
 
     pred_class = np.argmax(model.predict(img_input))
 
@@ -60,7 +60,7 @@ while rval:
     if show:
         plt.axis('off')
         plt.imshow(heatmap)
-        plt.title('Attention - {}'.format(utils.get_imagenet_label(pred_class)))
+        plt.title('Attention - {Person}')
         plt.show()
     key = cv2.waitKey(20)
     if key == 27:  # exit on ESC
