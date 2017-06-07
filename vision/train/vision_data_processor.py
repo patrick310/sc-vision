@@ -316,5 +316,5 @@ if __name__ == '__main__':
     #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()
-    dataprocessor.fit_simple_keras_model()
-    dataprocessor.save_trained_keras_model_to_file()
+    dataprocessor.fit_model()
+    dataprocessor.save_model_to_file()
