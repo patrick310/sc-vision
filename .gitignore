@@ -10,6 +10,8 @@ __pycache__/
 **/odata/
 **/dc_train_data/
 **/INRIAPerson/
+**/models/
+**/reference/
 
 **/visualize/*
 
