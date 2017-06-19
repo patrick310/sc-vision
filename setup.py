@@ -21,3 +21,4 @@ setup(
     packages=find_packages(exclude=('tests', 'docs'))
 )
 
+pip install -e git+https://github.com/patrick310/sc-vision.git@multiple-model-org#egg=vdp

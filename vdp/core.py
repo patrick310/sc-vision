@@ -7,11 +7,8 @@ def train():
     """Contemplation..."""
     dataprocessor = vision_data_processor.VisionDataProcessor()
     dataprocessor.create_simple_categorical_model()
-    #dataprocessor.create_binary_vgg16_model()
-    #dataprocessor.create_simple_binary_model()
-    #dataprocessor.create_flat_binary_fc_model()
-    #dataprocessor.create_doe_model()
-    #dataprocessor.create_flat_keras_model()
-    #dataprocessor.inception_cross_train()
     dataprocessor.fit_model()
     dataprocessor.plot_model_history()
+
+
+#This file needs to hold the arg parser where we will specify which model to use
