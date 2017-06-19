@@ -15,6 +15,8 @@ from hyperopt import Trials, STATUS_OK, tpe
 from hyperas import optim
 from hyperas.distributions import choice, uniform, conditional
 
+import matplotlib.pyplot as plt
+
 from hyperas import optim
 from hyperas.distributions import choice, uniform, conditional
 import h5py
@@ -207,6 +209,48 @@ class VisionDataProcessor():
               
         self.model = model
 
+    def create_simple_categorical_model(self):
+
+        model = Sequential()
+
+        model.add(Conv2D(32, (3, 3),
+                         padding='same',
+                         data_format='channels_last',
+                         strides=1,
+                         input_shape=self.input_shape))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(Conv2D(64, (3, 3)))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(Conv2D(128, (3, 3)))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(Conv2D(256, (3, 3)))
+        model.add(Activation('relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
+        model.add(Flatten())
+        model.add(Dense(64))
+        model.add(Activation('relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(configs.nb_classes))
+        model.add(Activation('softmax'))
+
+        if configs.print_summary:
+            model.summary()
+
+        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
+
+        model.compile(optimizer=sgd,#'Nadam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        self.model = model
+
     def create_flat_binary_fc_model(self, input_shape=None):
         if input_shape is None:
             input_shape = self.input_shape
@@ -299,26 +343,51 @@ class VisionDataProcessor():
         return {'loss': -acc, 'status': STATUS_OK, 'model': self.create_doe_model}
 
     def fit_model(self):
-        self.model.fit_generator(
+        history = self.model.fit_generator(
             self.train_generator,
             steps_per_epoch=int(configs.nb_test_images/configs.batch_size),
             epochs=configs.nb_epoch,
-            validation_data=self.validation_generator, 
+            validation_data=self.validation_generator,
             validation_steps=int(configs.nb_val_images/configs.val_batch_size),
             verbose=1
             )
 
+        self.history = history
+
     def save_model_to_file(self):
         self.model.save(configs.model_save_name)
         return None
+
+    def plot_model_history(self):
+        history = self.history
+
+        # http://machinelearningmastery.com/display-deep-learning-model-training-history-in-keras/
+        # summarize history for accuracy
+        plt.plot(history.history['acc'])
+        plt.plot(history.history['val_acc'])
+        plt.title('model accuracy')
+        plt.ylabel('accuracy')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.show()
+        # summarize history for loss
+        plt.plot(history.history['loss'])
+        plt.plot(history.history['val_loss'])
+        plt.title('model loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper left')
+        plt.show()
         
 if __name__ == '__main__':
     dataprocessor = VisionDataProcessor()
-    dataprocessor.create_binary_vgg16_model()
+    dataprocessor.create_simple_categorical_model()
+    #dataprocessor.create_binary_vgg16_model()
     #dataprocessor.create_simple_binary_model()
     #dataprocessor.create_flat_binary_fc_model()
     #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()
-    #dataprocessor.fit_model()
-    dataprocessor.save_model_to_file()
+    dataprocessor.fit_model()
+    dataprocessor.plot_model_history()
+    #dataprocessor.save_model_to_file()
