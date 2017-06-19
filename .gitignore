@@ -8,6 +8,8 @@ __pycache__/
 **/all_data/
 **/data/
 **/odata/
+**/dc_train_data/
+**/INRIAPerson/
 
 **/visualize/*
 
@@ -19,6 +21,9 @@ __pycache__/
 *.h5
 *.hdf5
 *.db
+*.avi
+*.npy
+*.tar
 
 # C extensions
 *.so
@@ -41,6 +46,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.zip
 
 
 # PyInstaller

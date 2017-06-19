@@ -30,15 +30,21 @@ horizontal_flip = configs["preprocessing"]["horizontal_flip"]
 color_mode = configs["preprocessing"]["color_mode"]
 class_mode = configs["preprocessing"]["class_mode"]
 test_fname = configs["preprocessing"]["test_fname"]
+fill_mode = configs["preprocessing"]["fill_mode"]
 nb_test_images = configs["preprocessing"]["nb_test_images"]
 test_dir = configs["preprocessing"]["test_dir"]
 val_fname = configs["preprocessing"]["val_fname"]
 nb_val_images = configs["preprocessing"]["nb_val_images"]
 val_dir = configs["preprocessing"]["val_dir"]
 
+
 batch_size = configs["training"]["batch_size"]
+val_batch_size = configs["training"]["val_batch_size"]
 nb_epoch = configs["training"]["nb_epoch"]
 verbose = configs["training"]["verbose"]
 print_summary = configs["training"]["print_summary"]
+
+vgg16_top_model_weights_path = configs["pretrained"]["vgg16_top_model_weights_path"]
+vgg16_weights_path = configs["pretrained"]["vgg16_weights_path"]
 
 max_evals = configs["hyperas"]["max_evals"]
