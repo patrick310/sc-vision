@@ -20,10 +20,10 @@
     "fill_mode" : "nearest",
     "test_fname" : "test_data.hdf5",
     "nb_test_images" : 1000,
-    "test_dir" : "C://Users//patri//PycharmProjects//sc-vision//vision//train//INRIAPersonINRIAPerson/Train",
+    "test_dir" : "C://Users//patri//PycharmProjects//sc-vision//vision//train//INRIAPerson//Train",
     "val_fname"  : "val_data.hdf5",
     "nb_val_images" : 200,
-    "val_dir" : "C://Users//patri//PycharmProjects//sc-vision//vision//train//INRIAPersonINRIAPerson/Test"
+    "val_dir" : "C://Users//patri//PycharmProjects//sc-vision//vision//train//INRIAPerson//Test"
   },
 
   "training" : {

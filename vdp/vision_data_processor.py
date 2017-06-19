@@ -209,8 +209,6 @@ class VisionDataProcessor():
               
         self.model = model
 
-        self.fit_model()
-
     def create_simple_categorical_model(self):
 
         model = Sequential()
@@ -252,8 +250,6 @@ class VisionDataProcessor():
                       metrics=['accuracy'])
 
         self.model = model
-
-        self.fit_model()
 
     def create_flat_binary_fc_model(self, input_shape=None):
         if input_shape is None:
@@ -392,5 +388,6 @@ if __name__ == '__main__':
     #dataprocessor.create_doe_model()
     #dataprocessor.create_flat_keras_model()
     #dataprocessor.inception_cross_train()
+    dataprocessor.fit_model()
     dataprocessor.plot_model_history()
     #dataprocessor.save_model_to_file()
