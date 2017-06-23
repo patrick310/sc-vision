@@ -16,8 +16,8 @@ Configs template:
 {
   "global" : {
     "nb_classes" : 4,
-    "img_width" : 300,
-    "img_height" : 300,
+    "img_width" : 600,
+    "img_height" : 600,
     "model_save_name" : "model_output.h5"
   },
 

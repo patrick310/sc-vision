@@ -6,8 +6,7 @@ from . import vision_data_processor
 def train():
     """Contemplation..."""
     dataprocessor = vision_data_processor.VisionDataProcessor()
-    dataprocessor.create_simple_categorical_model()
-    dataprocessor.fit_model()
+    dataprocessor.create_categorical_vgg16_model()
     dataprocessor.plot_model_history()
 
 

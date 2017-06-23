@@ -1,7 +1,7 @@
 from keras.preprocessing.image import ImageDataGenerator
 from keras.layers import Input
 from keras.models import Sequential
-from keras.layers import Convolution2D, MaxPooling2D
+from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.layers.convolutional import Conv2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.applications.inception_v3 import InceptionV3
@@ -14,7 +14,7 @@ from keras import backend as K
 from hyperopt import Trials, STATUS_OK, tpe
 from hyperas import optim
 from hyperas.distributions import choice, uniform, conditional
-
+from keras.utils import to_categorical
 import matplotlib.pyplot as plt
 
 from hyperas import optim
@@ -167,6 +167,98 @@ class VisionDataProcessor():
         fine_tune_top_model()
         self.fit_model()
 
+    def create_categorical_vgg16_model(self):
+
+        # https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
+        def save_bottleneck_features():
+
+            # build the VGG16 network
+            base_model = applications.VGG16(include_top=False, weights='imagenet', pooling='avg')
+
+            top_model = Sequential()
+            top_model.add(Dense(configs.nb_classes, activation='softmax', input_shape=base_model.output_shape[1:]))
+            self.model = Model(inputs=base_model.input, outputs=top_model(base_model.output))
+
+            self.ordered_train_generator = \
+                self.create_data_generator_from_directory(
+                    configs.test_dir,
+                    'train',
+                    False,
+                    class_mode=None
+                )
+
+            self.bottleneck_features_train = self.model.predict_generator(
+                self.ordered_train_generator, configs.nb_test_images // configs.batch_size)
+
+            self.train_labels = to_categorical(self.ordered_train_generator.classes.tolist(), num_classes=configs.nb_classes)
+
+
+            self.ordered_validation_generator =\
+                self.create_data_generator_from_directory(
+                    configs.val_dir,
+                    'validate',
+                    False,
+                    class_mode=None
+                )
+
+            self.bottleneck_features_validation = self.model.predict_generator(
+                self.ordered_validation_generator, configs.nb_val_images // configs.batch_size)
+            self.validation_labels = to_categorical(self.ordered_validation_generator.classes.tolist(), num_classes=configs.nb_classes)
+
+        def train_top_model():
+            sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
+
+            self.model.compile(optimizer=sgd,  # 'Nadam',
+                          loss='categorical_crossentropy',
+                          metrics=['accuracy'])
+
+            self.model.fit(self.bottleneck_features_train, self.train_labels,
+                           epochs=configs.nb_epoch,
+                           batch_size=configs.batch_size,
+                           validation_data=(self.bottleneck_features_validation, self.validation_labels)
+                           )
+
+            self.model.save_weights(configs.vgg16_top_model_weights_path)
+
+        def fine_tune_top_model():
+
+            # build the VGG16 network
+            base_model = applications.VGG16(weights='imagenet', include_top=False, input_shape=self.input_shape)
+            print('Model loaded.')
+
+            # build a classifier model to put on top of the convolutional model
+            top_model = Sequential()
+            top_model.add(Flatten(input_shape=base_model.output_shape[1:]))
+            top_model.add(Dense(256, activation='relu'))
+            top_model.add(Dropout(0.5))
+            top_model.add(Dense(1, activation='sigmoid',name='predictions'))
+
+            # note that it is necessary to start with a fully-trained
+            # classifier, including the top classifier,
+            # in order to successfully do fine-tuning
+            top_model.load_weights(configs.vgg16_top_model_weights_path)
+
+            # add the model on top of the convolutional base
+            model = Model(inputs=base_model.input, outputs=top_model(base_model.output))
+
+            # set the first 155 layers (up to the last conv block)
+            # to non-trainable (weights will not be updated)
+            for layer in model.layers[:15]:
+                layer.trainable = False
+
+            # compile the model with a SGD/momentum optimizer
+            # and a very slow learning rate.
+            model.compile(loss='binary_crossentropy',
+                          optimizer=optimizers.SGD(lr=1e-4, momentum=0.9),
+                          metrics=['accuracy'])
+
+            self.model = model
+
+        save_bottleneck_features()
+        train_top_model()
+        #fine_tune_top_model()
+        #self.fit_model()
+
     def create_simple_binary_model(self):
         
         model = Sequential()
@@ -212,13 +304,14 @@ class VisionDataProcessor():
     def create_simple_categorical_model(self):
 
         model = Sequential()
-
-        model.add(Conv2D(32, (3, 3),
+        model.add(Conv2D(64, (4, 4),
                          padding='same',
                          data_format='channels_last',
                          strides=1,
                          input_shape=self.input_shape))
         model.add(Activation('relu'))
+        model.add(ZeroPadding2D((1, 1)))
+        model.add(Conv2D(64, (3, 3), activation='relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
         model.add(Conv2D(64, (3, 3)))
@@ -234,7 +327,10 @@ class VisionDataProcessor():
         model.add(MaxPooling2D(pool_size=(2, 2)))
 
         model.add(Flatten())
-        model.add(Dense(64))
+        model.add(Dense(2028))
+        model.add(Activation('relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(2028))
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
         model.add(Dense(configs.nb_classes))
