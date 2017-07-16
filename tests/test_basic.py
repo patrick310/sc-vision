@@ -2,7 +2,7 @@
 
 import unittest
 from vdp.vision_data_processor import VisionDataProcessor
-from vdp.utils import create_model_config
+from vdp.helpers import create_model_config
 
 
 class BasicTestSuite(unittest.TestCase):
@@ -15,6 +15,7 @@ class BasicTestSuite(unittest.TestCase):
         dataprocessor = VisionDataProcessor()
         dataprocessor.create_simple_categorical_model()
         dataprocessor.fit_model()
+        assert dataprocessor.history
 
 
 if __name__ == '__main__':
