@@ -20,12 +20,12 @@ import matplotlib.pyplot as plt
 from hyperas import optim
 from hyperas.distributions import choice, uniform, conditional
 import h5py
-from . import configs
+from vdp import configs
 import numpy as np
 import os
 
 
-class VisionDataProcessor():
+class VisionDataProcessor:
 
     def __init__(self):
         self.training_data_generator = ImageDataGenerator(
@@ -74,6 +74,9 @@ class VisionDataProcessor():
             generated_generator = None
         
         return generated_generator
+
+    def identify_models_from_folder_structure(self):
+        None
 
     def create_binary_vgg16_model(self):
 
