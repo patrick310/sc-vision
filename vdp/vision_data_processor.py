@@ -1,28 +1,15 @@
 from keras.preprocessing.image import ImageDataGenerator
-from keras.layers import Input
 from keras.models import Sequential
-from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.layers.convolutional import Conv2D
-from keras.layers import Activation, Dropout, Flatten, Dense
-from keras.applications.inception_v3 import InceptionV3
-from keras import applications
-from keras import optimizers
-from keras.preprocessing import image
+from keras.layers import Activation, Dropout, Flatten, Dense, ZeroPadding2D, MaxPooling2D
+from keras import applications, optimizers
 from keras.models import Model
-from keras.layers import Dense, GlobalAveragePooling2D
-from keras import backend as K
-from hyperopt import Trials, STATUS_OK, tpe
-from hyperas import optim
-from hyperas.distributions import choice, uniform, conditional
 from keras.utils import to_categorical
+
 import matplotlib.pyplot as plt
-from vdp.configs import ConfigManager
-from hyperas import optim
-from hyperas.distributions import choice, uniform, conditional
-import h5py
-from vdp import configs
 import numpy as np
-import os
+
+from vdp.configs import ConfigManager
 
 
 class VisionDataProcessor:

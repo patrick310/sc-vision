@@ -3,7 +3,7 @@ import json
 
 class ConfigManager:
 
-    def __init__(self, source = None):
+    def __init__(self, source=None):
 
         if source is 'file':
             self.load_parameters_from_file()
