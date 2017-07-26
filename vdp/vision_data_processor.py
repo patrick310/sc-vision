@@ -16,7 +16,7 @@ from hyperas import optim
 from hyperas.distributions import choice, uniform, conditional
 from keras.utils import to_categorical
 import matplotlib.pyplot as plt
-
+from vdp.configs import ConfigManager
 from hyperas import optim
 from hyperas.distributions import choice, uniform, conditional
 import h5py
@@ -28,45 +28,50 @@ import os
 class VisionDataProcessor:
 
     def __init__(self):
+        self.configs = ConfigManager()
+
         self.training_data_generator = ImageDataGenerator(
-            shear_range = configs.shear_range,
-            zoom_range= configs.zoom_range,
-            zca_whitening= configs.zca_whitening,
-            rotation_range= configs.rotation_range,
-            width_shift_range=configs.width_shift_range,
-            height_shift_range=configs.height_shift_range,
-            vertical_flip=configs.vertical_flip,
-            horizontal_flip = configs.horizontal_flip,
+            shear_range = self.configs.shear_range,
+            zoom_range = self.configs.zoom_range,
+            zca_whitening= self.configs.zca_whitening,
+            rotation_range= self.configs.rotation_range,
+            width_shift_range = self.configs.height_shift_range,
+            vertical_flip = self.configs.vertical_flip,
+            horizontal_flip = self.configs.horizontal_flip,
             rescale=1./255,
-            fill_mode = configs.fill_mode,
+            fill_mode = self.configs.fill_mode,
         )
 
-        self.input_shape = (configs.img_width, configs.img_height, 3)
+        self.input_shape = (self.configs.img_width, self.configs.img_height, 3)
 
         self.validation_data_generator = ImageDataGenerator()
         
-        self.train_generator = self.create_data_generator_from_directory(configs.test_dir,
-                                                                         'train')
-        self.validation_generator = self.create_data_generator_from_directory(configs.val_dir,
-                                                                              'validate')
+        self.train_generator = self.create_data_generator_from_directory(directory=self.configs.train_dir,
+                                                                         generator='train')
+        self.validation_generator = self.create_data_generator_from_directory(directory=self.configs.val_dir,
+                                                                              generator='validate')
 
-    def create_data_generator_from_directory(self, directory, generator, shuffle=True, class_mode=configs.class_mode):
+    def create_data_generator_from_directory(self, directory, generator, shuffle=True, class_mode=None):
+
+        if class_mode is None:
+            class_mode = self.configs.class_mode
+
         if generator == "train":
             generated_generator =\
                 self.training_data_generator.flow_from_directory(
                     directory = directory,
-                    target_size = (configs.img_width, configs.img_height),
-                    batch_size = configs.batch_size,
-                    color_mode = configs.color_mode,
+                    target_size = (self.configs.img_width, self.configs.img_height),
+                    batch_size = self.configs.batch_size,
+                    color_mode = self.configs.color_mode,
                     class_mode= class_mode,
                     shuffle=shuffle,
                 )
         elif generator == "validate":
             generated_generator = self.validation_data_generator.flow_from_directory(
                 directory=directory,
-                target_size=(configs.img_width, configs.img_height),
-                batch_size=configs.batch_size,
-                color_mode=configs.color_mode,
+                target_size=(self.configs.img_width, self.configs.img_height),
+                batch_size= self.configs.batch_size,
+                color_mode= self.configs.color_mode,
                 class_mode=class_mode,
                 shuffle=shuffle,
             )
@@ -74,9 +79,6 @@ class VisionDataProcessor:
             generated_generator = None
         
         return generated_generator
-
-    def identify_models_from_folder_structure(self):
-        None
 
     def create_binary_vgg16_model(self):
 
@@ -88,48 +90,63 @@ class VisionDataProcessor:
 
             self.ordered_train_generator = \
                 self.create_data_generator_from_directory(
-                    configs.test_dir,
+                    self.configs.test_dir,
                     'train',
                     False,
                     class_mode=None
                 )
 
             bottleneck_features_train = self.model.predict_generator(
-                self.ordered_train_generator, configs.nb_test_images // configs.batch_size)
+                self.ordered_train_generator, self.configs.nb_test_images // self.configs.batch_size)
             np.save(open('bottleneck_features_train.npy', 'wb'),
                     bottleneck_features_train)
 
             self.ordered_validation_generator =\
                 self.create_data_generator_from_directory(
-                    configs.val_dir,
+                    self.configs.val_dir,
                     'validate',
                     False,
                     class_mode=None
                 )
 
             bottleneck_features_validation = self.model.predict_generator(
-                self.ordered_validation_generator, configs.nb_val_images // configs.batch_size)
+                self.ordered_validation_generator, self.configs.nb_val_images // self.configs.batch_size)
             np.save(open('bottleneck_features_validation.npy', 'wb'),
                     bottleneck_features_validation)
 
         def train_top_model():
             train_data = np.load(open('bottleneck_features_train.npy', 'rb'))
             train_labels = np.array(
-                [0] * (configs.nb_test_images // 2) + [1] * (configs.nb_test_images // 2))
+                [0] * (self.configs.nb_test_images // 2) + [1] * (self.configs.nb_test_images // 2))
 
             validation_data = np.load(open('bottleneck_features_validation.npy', 'rb'))
             validation_labels = np.array(
-                [0] * (configs.nb_val_images // 2) + [1] * (configs.nb_val_images // 2))
+                [0] * (self.configs.nb_val_images // 2) + [1] * (self.configs.nb_val_images // 2))
 
-            self.create_flat_binary_fc_model(train_data.shape[1:])
+            def create_flat_binary_fc_model(input_shape=None):
+                if input_shape is None:
+                    input_shape = self.input_shape
+                model = Sequential()
+                model.add(Flatten(input_shape=input_shape))
+                model.add(Dense(256, activation='relu'))
+                model.add(Dropout(0.5))
+                model.add(Dense(1, activation='sigmoid'))
+
+                model.compile(optimizer='rmsprop',
+                              loss='binary_crossentropy',
+                              metrics=['accuracy'])
+
+                self.model = model
+
+            create_flat_binary_fc_model(train_data.shape[1:])
 
             self.model.fit(train_data, train_labels,
-                           epochs=configs.nb_epoch,
-                           batch_size=configs.batch_size,
+                           epochs= self.configs.nb_epoch,
+                           batch_size= self.configs.batch_size,
                            validation_data=(validation_data, validation_labels)
                            )
 
-            self.model.save_weights(configs.vgg16_top_model_weights_path)
+            self.model.save_weights(self.configs.vgg16_top_model_weights_path)
 
         def fine_tune_top_model():
 
@@ -147,7 +164,7 @@ class VisionDataProcessor:
             # note that it is necessary to start with a fully-trained
             # classifier, including the top classifier,
             # in order to successfully do fine-tuning
-            top_model.load_weights(configs.vgg16_top_model_weights_path)
+            top_model.load_weights(self.configs.vgg16_top_model_weights_path)
 
             # add the model on top of the convolutional base
             model = Model(inputs=base_model.input, outputs=top_model(base_model.output))
@@ -179,34 +196,34 @@ class VisionDataProcessor:
             base_model = applications.VGG16(include_top=False, weights='imagenet', pooling='avg')
 
             top_model = Sequential()
-            top_model.add(Dense(configs.nb_classes, activation='softmax', input_shape=base_model.output_shape[1:]))
+            top_model.add(Dense(self.configs.nb_classes, activation='softmax', input_shape=base_model.output_shape[1:]))
             self.model = Model(inputs=base_model.input, outputs=top_model(base_model.output))
 
             self.ordered_train_generator = \
                 self.create_data_generator_from_directory(
-                    configs.test_dir,
+                    self.configs.test_dir,
                     'train',
                     False,
                     class_mode=None
                 )
 
             self.bottleneck_features_train = self.model.predict_generator(
-                self.ordered_train_generator, configs.nb_test_images // configs.batch_size)
+                self.ordered_train_generator, self.configs.nb_test_images // self.configs.batch_size)
 
-            self.train_labels = to_categorical(self.ordered_train_generator.classes.tolist(), num_classes=configs.nb_classes)
+            self.train_labels = to_categorical(self.ordered_train_generator.classes.tolist(), num_classes= self.configs.nb_classes)
 
 
             self.ordered_validation_generator =\
                 self.create_data_generator_from_directory(
-                    configs.val_dir,
+                    self.configs.val_dir,
                     'validate',
                     False,
                     class_mode=None
                 )
 
             self.bottleneck_features_validation = self.model.predict_generator(
-                self.ordered_validation_generator, configs.nb_val_images // configs.batch_size)
-            self.validation_labels = to_categorical(self.ordered_validation_generator.classes.tolist(), num_classes=configs.nb_classes)
+                self.ordered_validation_generator, self.configs.nb_val_images // self.configs.batch_size)
+            self.validation_labels = to_categorical(self.ordered_validation_generator.classes.tolist(), num_classes= self.configs.nb_classes)
 
         def train_top_model():
             sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
@@ -216,12 +233,12 @@ class VisionDataProcessor:
                           metrics=['accuracy'])
 
             self.model.fit(self.bottleneck_features_train, self.train_labels,
-                           epochs=configs.nb_epoch,
-                           batch_size=configs.batch_size,
+                           epochs= self.configs.nb_epoch,
+                           batch_size= self.configs.batch_size,
                            validation_data=(self.bottleneck_features_validation, self.validation_labels)
                            )
 
-            self.model.save_weights(configs.vgg16_top_model_weights_path)
+            self.model.save_weights(self.configs.vgg16_top_model_weights_path)
 
         def fine_tune_top_model():
 
@@ -239,7 +256,7 @@ class VisionDataProcessor:
             # note that it is necessary to start with a fully-trained
             # classifier, including the top classifier,
             # in order to successfully do fine-tuning
-            top_model.load_weights(configs.vgg16_top_model_weights_path)
+            top_model.load_weights(self.configs.vgg16_top_model_weights_path)
 
             # add the model on top of the convolutional base
             model = Model(inputs=base_model.input, outputs=top_model(base_model.output))
@@ -290,10 +307,10 @@ class VisionDataProcessor:
         model.add(Dense(64))
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(configs.nb_classes))
+        model.add(Dense(self.configs.nb_classes))
         model.add(Activation('sigmoid'))
             
-        if configs.print_summary:
+        if self.configs.print_summary:
             model.summary()
 
         sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
@@ -336,10 +353,10 @@ class VisionDataProcessor:
         model.add(Dense(2028))
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(configs.nb_classes))
+        model.add(Dense(self.configs.nb_classes))
         model.add(Activation('softmax'))
 
-        if configs.print_summary:
+        if self.configs.print_summary:
             model.summary()
 
         sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
@@ -350,111 +367,20 @@ class VisionDataProcessor:
 
         self.model = model
 
-    def create_flat_binary_fc_model(self, input_shape=None):
-        if input_shape is None:
-            input_shape = self.input_shape
-        model = Sequential()
-        model.add(Flatten(input_shape=input_shape))
-        model.add(Dense(256, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(1, activation='sigmoid'))
-
-        model.compile(optimizer='rmsprop',
-                      loss='binary_crossentropy',
-                      metrics=['accuracy'])
-
-        self.model = model
-
-    def create_other_doe_model(self):
-        model = Sequential()
-        model.add(Dense(512, input_shape=self.input_shape))
-        model.add(Activation('relu'))
-        model.add(Dropout({{uniform(0, 1)}}))
-        model.add(Dense({{choice([256, 512, 1024])}}))
-        model.add(Activation({{choice(['relu', 'sigmoid'])}}))
-        model.add(Dropout({{uniform(0, 1)}}))
-
-        if conditional({{choice(['three', 'four'])}}) == 'four':
-            model.add(Dense(100))
-
-            # We can also choose between complete sets of layers
-
-            model.add({{choice([Dropout(0.5), Activation('linear')])}})
-            model.add(Activation('relu'))
-
-        model.add(Dense(10))
-        model.add(Activation('softmax'))
-
-        model.compile(loss='categorical_crossentropy', metrics=['accuracy'],
-                      optimizer={{choice(['rmsprop', 'adam', 'sgd'])}})
-
-    def create_doe_model(self):
-        model = Sequential()
-        model.add(Convolution2D(32, 3, 3, input_shape=self.input_shape))
-        model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-
-        if conditional({{choice(['three', 'four'])}}) == 'four':
-            model.add(Convolution2D(32, 3, 3))
-            model.add(Activation('relu'))
-            model.add(MaxPooling2D(pool_size=(2, 2)))
-
-            model.add(Convolution2D(64, 3, 3, input_shape=self.input_shape))
-            model.add(Activation('relu'))
-            model.add(MaxPooling2D(pool_size=(2, 2)))
-
-        model.add(Flatten())
-
-        model.add(Dense({{choice([75, 100])}}))
-        model.add(Activation('relu'))
-
-        if conditional({{choice(['extra', 'no_extra'])}}) == 'extra':
-            model.add(Dense(50))
-            model.add(Activation('relu'))
-
-        model.add(Dense({{choice([10, 20, 30])}}))
-        model.add(Activation('relu'))
-
-        model.add(Dropout({{uniform(0, 1)}}))
-        model.add(Dense(configs.nb_classes))
-        model.add(Activation('sigmoid'))
-
-        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-
-        model.compile(
-            loss='categorical_crossentropy',
-            optimizer={{choice(['rmsprop', 'adam', sgd])}},
-            metrics=['accuracy'])
-
-        if configs.print_summary:
-            model.summary()
-
-        self.model = model
-
-        self.model.fit_generator(
-            self.train_generator,
-            steps_per_epoch=int(configs.nb_test_images/configs.batch_size),
-            epochs=configs.nb_epoch,
-            validation_data=self.validation_generator,
-            validation_steps=int(configs.nb_val_images/configs.batch_size)
-            )
-
-        return {'loss': -acc, 'status': STATUS_OK, 'model': self.create_doe_model}
-
     def fit_model(self):
         history = self.model.fit_generator(
             self.train_generator,
-            steps_per_epoch=int(configs.nb_test_images/configs.batch_size),
-            epochs=configs.nb_epoch,
+            steps_per_epoch=int(self.configs.nb_test_images/self.configs.batch_size),
+            epochs= self.configs.nb_epoch,
             validation_data=self.validation_generator,
-            validation_steps=int(configs.nb_val_images/configs.val_batch_size),
+            validation_steps=int(self.configs.nb_val_images/self.configs.val_batch_size),
             verbose=1
             )
 
         self.history = history
 
     def save_model_to_file(self):
-        self.model.save(configs.model_save_name)
+        self.model.save(self.configs.model_save_name)
         return None
 
     def plot_model_history(self):

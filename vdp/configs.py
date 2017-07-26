@@ -1,62 +1,100 @@
 import json
 
 
-def load_configs():
-    def byteify(input):
-        if isinstance(input, dict):
-            return {byteify(key): byteify(value)
-                for key, value in input.items()}
-        elif isinstance(input, list):
-            return [byteify(element) for element in input]
+class ConfigManager:
+
+    def __init__(self, source = None):
+
+        if source is 'file':
+            self.load_parameters_from_file()
+
+        elif source is 'dictionary':
+            # To-do but would make the constructor super long
+            self.load_parameters_from_dictionary()
+
         else:
-            return input
+            self.load_default_parameters()
 
-    with open("configs.json", "r") as f:
-        return byteify(json.load(f))
+    def load_parameters_from_file(self):
 
+        def load_configs_file(self, file_name=None):
+            if file_name is None:
+                file_name = "configs.json"
 
-def main():
-    configs = load_configs()
+            def byteify(input):
+                if isinstance(input, dict):
+                    return {byteify(key): byteify(value)
+                            for key, value in input.items()}
+                elif isinstance(input, list):
+                    return [byteify(element) for element in input]
+                else:
+                    return input
 
-    global class_mode
+            with open(file_name, "r") as f:
+                return byteify(json.load(f))
 
-    nb_classes = configs["global"]["nb_classes"]
-    img_width = configs["global"]["img_width"]
-    img_height = configs["global"]["img_height"]
-    model_save_name = configs["global"]["model_save_name"]
+        configs = load_configs_file()
 
-    shear_range = configs["preprocessing"]["shear_range"]
-    zoom_range = configs["preprocessing"]["zoom_range"]
-    zca_whitening = configs["preprocessing"]["zca_whitening"]
-    rotation_range = configs["preprocessing"]["rotation_range"]
-    width_shift_range = configs["preprocessing"]["width_shift_range"]
-    height_shift_range = configs["preprocessing"]["height_shift_range"]
-    vertical_flip = configs["preprocessing"]["vertical_flip"]
-    horizontal_flip = configs["preprocessing"]["horizontal_flip"]
-    color_mode = configs["preprocessing"]["color_mode"]
-    class_mode = configs["preprocessing"]["class_mode"]
-    test_fname = configs["preprocessing"]["test_fname"]
-    fill_mode = configs["preprocessing"]["fill_mode"]
-    nb_test_images = configs["preprocessing"]["nb_test_images"]
-    test_dir = configs["preprocessing"]["test_dir"]
-    val_fname = configs["preprocessing"]["val_fname"]
-    nb_val_images = configs["preprocessing"]["nb_val_images"]
-    val_dir = configs["preprocessing"]["val_dir"]
+        self.nb_classes = configs["global"]["nb_classes"]
+        self.img_width = configs["global"]["img_width"]
+        self.img_height = configs["global"]["img_height"]
+        self.model_save_name = configs["global"]["model_save_name"]
 
+        self.shear_range = configs["preprocessing"]["shear_range"]
+        self.zoom_range = configs["preprocessing"]["zoom_range"]
+        self.zca_whitening = configs["preprocessing"]["zca_whitening"]
+        self.rotation_range = configs["preprocessing"]["rotation_range"]
+        self.width_shift_range = configs["preprocessing"]["width_shift_range"]
+        self.height_shift_range = configs["preprocessing"]["height_shift_range"]
+        self.vertical_flip = configs["preprocessing"]["vertical_flip"]
+        self.horizontal_flip = configs["preprocessing"]["horizontal_flip"]
+        self.color_mode = configs["preprocessing"]["color_mode"]
+        self.class_mode = configs["preprocessing"]["class_mode"]
+        self.fill_mode = configs["preprocessing"]["fill_mode"]
+        self.nb_test_images = configs["preprocessing"]["nb_test_images"]
+        self.test_dir = configs["preprocessing"]["test_dir"]
+        self.nb_val_images = configs["preprocessing"]["nb_val_images"]
+        self.val_dir = configs["preprocessing"]["val_dir"]
 
-    batch_size = configs["training"]["batch_size"]
-    val_batch_size = configs["training"]["val_batch_size"]
-    nb_epoch = configs["training"]["nb_epoch"]
-    verbose = configs["training"]["verbose"]
-    print_summary = configs["training"]["print_summary"]
+        self.batch_size = configs["training"]["batch_size"]
+        self.val_batch_size = configs["training"]["val_batch_size"]
+        self.nb_epoch = configs["training"]["nb_epoch"]
+        self.verbose = configs["training"]["verbose"]
+        self.print_summary = configs["training"]["print_summary"]
 
-    vgg16_top_model_weights_path = configs["pretrained"]["vgg16_top_model_weights_path"]
-    vgg16_weights_path = configs["pretrained"]["vgg16_weights_path"]
+        self.vgg16_top_model_weights_path = configs["pretrained"]["vgg16_top_model_weights_path"]
+        self.vgg16_weights_path = configs["pretrained"]["vgg16_weights_path"]
 
-    max_evals = configs["hyperas"]["max_evals"]
+    def load_default_parameters(self):
+        self.nb_classes = 4
+        self.img_width = 250
+        self.img_height = 250
+        self.model_save_name = 'myModel.h5'
 
-main()
+        self.shear_range = 0
+        self.zoom_range = 0
+        self.zca_whitening = False
+        self.rotation_range = 0
+        self.width_shift_range = 0
+        self.height_shift_range = 0
+        self.vertical_flip = False
+        self.horizontal_flip = False
+        self.color_mode = 'rgb'
+        self.class_mode = 'categorical'
+        self.fill_mode = 'nearest'
+        self.nb_test_images = 1000
+        self.train_dir = 'training'
+        self.nb_val_images = 200
+        self.val_dir = 'validation'
 
+        self.batch_size = 18
+        self.val_batch_size = 6
+        self.nb_epoch = 8
+        self.verbose = 1
+        self.print_summary = True
 
-if __name__ == '__main__':
-    main()
+        self.vgg16_top_model_weights_path = "reference/bottleneck_fc_model.h5"
+        self.vgg16_weights_path = "reference/vgg16_weights.h5"
+
+    def load_parameters_from_dictionary(self):
+        None

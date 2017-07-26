@@ -18,10 +18,8 @@
     "color_mode" : "rgb",
     "class_mode" : "categorical",
     "fill_mode" : "nearest",
-    "test_fname" : "test_data.hdf5",
     "nb_test_images" : 20,
     "test_dir" : "testref/Train",
-    "val_fname"  : "val_data.hdf5",
     "nb_val_images" : 5,
     "val_dir" : "testref/Validate"
   },
