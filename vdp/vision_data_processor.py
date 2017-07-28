@@ -1,9 +1,10 @@
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers.convolutional import Conv2D
-from keras.layers import Activation, Dropout, Flatten, Dense, ZeroPadding2D, MaxPooling2D
-from keras import applications, optimizers
-from keras.models import Model
+from keras.layers import Activation, Dropout, Flatten, Dense, ZeroPadding2D, MaxPooling2D, Input
+from keras import optimizers
+from keras.applications.vgg16 import VGG16
+from keras.models import Model, load_model
 from keras.utils import to_categorical
 
 import matplotlib.pyplot as plt
@@ -265,6 +266,41 @@ class VisionDataProcessor:
         train_top_model()
         #fine_tune_top_model()
         #self.fit_model()
+
+    def create_vgg16_model(self):
+
+        # Get back the convolutional part of a VGG network trained on ImageNet
+        model_vgg16_conv = VGG16(weights='imagenet', include_top=False)
+        model_vgg16_conv.summary()
+
+        # Create your own input format (here 3x200x200)
+        input = Input(shape=self.input_shape, name='image_input')
+
+        # Use the generated model
+        output_vgg16_conv = model_vgg16_conv(input)
+
+        # Add the fully-connected layers
+        x = Flatten(name='flatten')(output_vgg16_conv)
+        x = Dense(4096, activation='relu', name='fc1')(x)
+        x = Dense(4096, activation='relu', name='fc2')(x)
+        x = Dense(self.configs.nb_classes, activation='softmax', name='predictions')(x)
+
+        # Create your own model
+        my_model = Model(input=input, output=x)
+
+        self.model = my_model
+
+        # In the summary, weights and layers from VGG part will be hidden, but they will be fit during the training
+        my_model.summary()
+
+        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
+
+        self.model.compile(optimizer=sgd,#'Nadam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+
+        # Then training with your data !
 
     def create_simple_binary_model(self):
         

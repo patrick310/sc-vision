@@ -13,7 +13,7 @@ class BasicTestSuite(unittest.TestCase):
 
     def test_build_and_fit_model(self):
         dataprocessor = VisionDataProcessor()
-        dataprocessor.create_simple_categorical_model()
+        dataprocessor.create_vgg16_model()
         dataprocessor.fit_model()
         assert dataprocessor.history
 

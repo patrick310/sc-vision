@@ -82,15 +82,15 @@ class ConfigManager:
         self.color_mode = 'rgb'
         self.class_mode = 'categorical'
         self.fill_mode = 'nearest'
-        self.nb_test_images = 1000
+        self.nb_test_images = 25000
         self.train_dir = 'training'
-        self.nb_val_images = 200
+        self.nb_val_images = 5000
         self.val_dir = 'validation'
 
         self.batch_size = 18
         self.val_batch_size = 6
-        self.nb_epoch = 8
-        self.verbose = 1
+        self.nb_epoch = 50
+        self.verbose = 0
         self.print_summary = True
 
         self.vgg16_top_model_weights_path = "reference/bottleneck_fc_model.h5"
