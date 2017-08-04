@@ -19,16 +19,20 @@ def format_image_for_network(image):
     return np_frame
 
 
-def log_new_car():
-    F.write("[Info]  " + datetime.now().strftime(configs.time_format) + " New vehicle detected\n")
+def log_new_car(log_file):
+    log_file.write("[Info]  " + datetime.now().strftime(configs.time_format) + " New vehicle detected\n")
 
 
-def log_car_configuration(bolt_configuration):
-    F.write("[Info]  " + datetime.now().strftime(configs.time_format) + " Vehicle identified with ")
-    F.write(bolt_configuration)
-    F.write(" pattern\n")
+def log_car_configuration(log_file, bolt_configuration):
+    log_file.write("[Info]  " + datetime.now().strftime(configs.time_format) + " Vehicle identified with ")
+    log_file.write(bolt_configuration)
+    log_file.write(" pattern\n")
 
 
-def log_car_leaving():
-    F.write("[Info]  " + datetime.now().strftime(configs.time_format) + " Vehicle detected leaving station\n")
+def log_car_leaving(log_file):
+    log_file.write("[Info]  " + datetime.now().strftime(configs.time_format) + " Vehicle detected leaving station\n")
+	
+
+def log_message(log_file, message):
+	log_file.write(message)
 

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from vdp.configs import ConfigManager
+import vdp.helpers
 
 
 class VisionDataProcessor:
@@ -399,6 +400,7 @@ class VisionDataProcessor:
             validation_steps=int(self.configs.nb_val_images/self.configs.val_batch_size),
             verbose=1
             )
+			
 
         self.history = history
 
