@@ -66,9 +66,9 @@ class ConfigManager:
         self.vgg16_weights_path = configs["pretrained"]["vgg16_weights_path"]
 
     def load_default_parameters(self):
-        self.nb_classes = 4
-        self.img_width = 250
-        self.img_height = 250
+        self.nb_classes = 2
+        self.img_width = 60
+        self.img_height = 60
         self.model_save_name = 'myModel.h5'
 
         self.shear_range = 0
@@ -82,15 +82,15 @@ class ConfigManager:
         self.color_mode = 'rgb'
         self.class_mode = 'categorical'
         self.fill_mode = 'nearest'
-        self.nb_test_images = 25000
-        self.train_dir = 'training'
-        self.nb_val_images = 5000
-        self.val_dir = 'validation'
+        self.nb_test_images = 2000
+        self.train_dir = 'dc_train_data/train'
+        self.nb_val_images = 300
+        self.val_dir = 'dc_train_data/validate'
 
-        self.batch_size = 18
-        self.val_batch_size = 6
-        self.nb_epoch = 50
-        self.verbose = 0
+        self.batch_size = 15
+        self.val_batch_size = 5
+        self.nb_epoch = 12
+        self.verbose = 1
         self.print_summary = True
 
         self.vgg16_top_model_weights_path = "reference/bottleneck_fc_model.h5"

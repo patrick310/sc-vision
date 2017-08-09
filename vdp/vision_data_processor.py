@@ -3,6 +3,7 @@ from keras.models import Sequential
 from keras.layers.convolutional import Conv2D
 from keras.layers import Activation, Dropout, Flatten, Dense, ZeroPadding2D, MaxPooling2D, Input
 from keras import optimizers
+from keras.layers.normalization import BatchNormalization
 from keras.applications.vgg16 import VGG16
 from keras.models import Model, load_model
 from keras.utils import to_categorical
@@ -176,6 +177,10 @@ class VisionDataProcessor:
         fine_tune_top_model()
         self.fit_model()
 
+    def conv2DReluBatchNorm(self, n_filter, w_filter, h_filter, inputs):
+        return BatchNormalization()(
+            Activation(activation='relu')(Conv2D(n_filter, w_filter, h_filter, border_mode='same')(inputs)))
+
     def create_categorical_vgg16_model(self):
 
         # https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
@@ -348,15 +353,17 @@ class VisionDataProcessor:
     def create_simple_categorical_model(self):
 
         model = Sequential()
-        model.add(Conv2D(64, (4, 4),
+        model.add(self.conv2DReluBatchNorm(64,4,4,self.input_shape))
+        ''' model.add(Conv2D(64, (4, 4),
                          padding='same',
                          data_format='channels_last',
                          strides=1,
-                         input_shape=self.input_shape))
+                         input_shape=self.input_shape))'''
         model.add(Activation('relu'))
         model.add(ZeroPadding2D((1, 1)))
         model.add(Conv2D(64, (3, 3), activation='relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(BatchNormalization())
 
         model.add(Conv2D(64, (3, 3)))
         model.add(Activation('relu'))
@@ -369,6 +376,7 @@ class VisionDataProcessor:
         model.add(Conv2D(256, (3, 3)))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(BatchNormalization())
 
         model.add(Flatten())
         model.add(Dense(2028))
@@ -386,6 +394,42 @@ class VisionDataProcessor:
         sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
 
         model.compile(optimizer=sgd,#'Nadam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        self.model = model
+
+    def create_simple_normalized_model(self):
+        # import BatchNormalization
+
+
+        # instantiate model
+        model = Sequential()
+        model.add(Conv2D(64, (4, 4),
+                         padding='same',
+                         data_format='channels_last',
+                         strides=1,
+                         input_shape=self.input_shape))
+        model.add(BatchNormalization())
+        model.add(Activation('relu'))
+        model.add(Dropout(0.5))
+
+        # we can think of this chunk as the hidden layer
+        model.add(Dense(64, init='uniform'))
+        model.add(Activation('tanh'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.5))
+        model.add(Flatten())
+
+        # we can think of this chunk as the output layer
+        model.add(Dense(self.configs.nb_classes, init='uniform', activation='softmax'))
+
+        if self.configs.print_summary:
+            model.summary()
+
+        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
+
+        model.compile(optimizer='Nadam',
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
 
