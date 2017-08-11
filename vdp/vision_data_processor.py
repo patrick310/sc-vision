@@ -30,11 +30,16 @@ class VisionDataProcessor:
             horizontal_flip = self.configs.horizontal_flip,
             rescale=1./255,
             fill_mode = self.configs.fill_mode,
+            featurewise_center=True,
+            featurewise_std_normalization=True,
         )
 
         self.input_shape = (self.configs.img_width, self.configs.img_height, 3)
 
-        self.validation_data_generator = ImageDataGenerator()
+        self.validation_data_generator = ImageDataGenerator(rescale=1./255,
+                                                            featurewise_center=True,
+                                                            featurewise_std_normalization=True,
+                                                            )
         
         self.train_generator = self.create_data_generator_from_directory(directory=self.configs.train_dir,
                                                                          generator='train')
@@ -56,6 +61,7 @@ class VisionDataProcessor:
                     class_mode= class_mode,
                     shuffle=shuffle,
                 )
+            print(generated_generator.class_indices)
         elif generator == "validate":
             generated_generator = self.validation_data_generator.flow_from_directory(
                 directory=directory,
@@ -65,6 +71,7 @@ class VisionDataProcessor:
                 class_mode=class_mode,
                 shuffle=shuffle,
             )
+            print(generated_generator.class_indices)
         else:
             generated_generator = None
         
@@ -431,7 +438,7 @@ class VisionDataProcessor:
 
         model.compile(optimizer='Nadam',
                       loss='categorical_crossentropy',
-                      metrics=['accuracy'])
+                      metrics=['categorical_accuracy'])
 
         self.model = model
 
