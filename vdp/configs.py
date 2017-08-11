@@ -67,8 +67,8 @@ class ConfigManager:
 
     def load_default_parameters(self):
         self.nb_classes = 2
-        self.img_width = 200
-        self.img_height = 200
+        self.img_width = 32
+        self.img_height = 32
         self.model_save_name = 'myModel.h5'
 
         self.shear_range = 0
@@ -79,17 +79,17 @@ class ConfigManager:
         self.height_shift_range = 0
         self.vertical_flip = False
         self.horizontal_flip = False
-        self.color_mode = 'rgb'
+        self.color_mode = 'grayscale'
         self.class_mode = 'categorical'
         self.fill_mode = 'nearest'
-        self.nb_test_images = 7000
-        self.train_dir = 'dc_train_data/train'
-        self.nb_val_images = 2000
-        self.val_dir = 'dc_train_data/validate'
+        self.nb_test_images = 300
+        self.train_dir = 'newData/training'
+        self.nb_val_images = 100
+        self.val_dir = 'newData/validation'
 
         self.batch_size = 15
         self.val_batch_size = 5
-        self.nb_epoch = 12
+        self.nb_epoch = 15
         self.verbose = 1
         self.print_summary = True
 

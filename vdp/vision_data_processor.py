@@ -33,8 +33,10 @@ class VisionDataProcessor:
             featurewise_center=True,
             featurewise_std_normalization=True,
         )
-
-        self.input_shape = (self.configs.img_width, self.configs.img_height, 3)
+        if self.configs.color_mode == 'grayscale':
+            self.input_shape = (self.configs.img_width, self.configs.img_height, 1)
+        else:
+            self.input_shape = (self.configs.img_width, self.configs.img_height, 3)
 
         self.validation_data_generator = ImageDataGenerator(rescale=1./255,
                                                             featurewise_center=True,
