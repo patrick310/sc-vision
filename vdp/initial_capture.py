@@ -1,22 +1,17 @@
 import cv2
-from PIL import Image
 
-
-def set_resolution(cap, x, y):
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, int(x))
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, int(y))
-    return str(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), str(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
+from vdp.helpers import set_resolution
 
 cv2.namedWindow("preview")
-vc = cv2.VideoCapture(1)
+vc = cv2.VideoCapture(0)
+
+classes = ['2_bolt_configuration', '4_bolt_configuration', 'between_cars', 'vehicle_with_no_bolts']
+initial_key = 49
 
 if vc.isOpened():  # try to get the first frame
     rval, frame = vc.read()
 else:
     rval = False
-
-counter = 0
 
 set_resolution(vc, 1920, 1080)
 

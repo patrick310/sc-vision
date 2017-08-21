@@ -427,7 +427,7 @@ class VisionDataProcessor:
         model.add(Dense(64, init='uniform'))
         model.add(Activation('tanh'))
         model.add(BatchNormalization())
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.8))
         model.add(Flatten())
 
         # we can think of this chunk as the output layer

@@ -66,7 +66,7 @@ class ConfigManager:
         self.vgg16_weights_path = configs["pretrained"]["vgg16_weights_path"]
 
     def load_default_parameters(self):
-        self.nb_classes = 2
+        self.nb_classes = 5
         self.img_width = 32
         self.img_height = 32
         self.model_save_name = 'myModel.h5'
@@ -83,9 +83,9 @@ class ConfigManager:
         self.class_mode = 'categorical'
         self.fill_mode = 'nearest'
         self.nb_test_images = 300
-        self.train_dir = 'newData/training'
+        self.train_dir = 'bumperClassifier/training'
         self.nb_val_images = 100
-        self.val_dir = 'newData/validation'
+        self.val_dir = 'bumperClassifier/validation'
 
         self.batch_size = 15
         self.val_batch_size = 5
