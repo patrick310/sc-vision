@@ -10,11 +10,14 @@ __pycache__/
 **/odata/
 **/dc_train_data/
 **/INRIAPerson/
+**/models/
+**/reference/
 
 **/visualize/*
 
-#Images (add other types later, we don't need any)
+#Images (add other types later, we don't need any other than a test image)
 *.jpg
+*.png
 *.jpeg
 *.zip
 *.h5py
