@@ -2,9 +2,5 @@
 from . import lean_vision_processor
 
 
-def train():
-    """Contemplation..."""
+class LeanVisionProcessor(lean_vision_processor.LeanVisionProcessor):
     None
-
-
-#This file needs to hold the arg parser where we will specify which model to use

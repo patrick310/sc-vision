@@ -1,39 +1,100 @@
 from keras.applications.resnet50 import ResNet50
-from keras.backend import shape
 from keras.preprocessing import image
 from keras.applications.resnet50 import preprocess_input, decode_predictions
+
 import numpy as np
-import keras
+import logging
+import cv2
+import time
+import os
 
-class LeanVisionProcessor():
+from vdp.helpers import set_resolution
 
-    '''Class which represents a vision system instance. It contains the logic of the system, and methods to control
-    device specific parameters such as logging, alarms, and storage. This lean version is designed to be run locally.'''
+
+class LeanVisionProcessor:
+    '''
+    Class which represents a vision system instance. It contains the logic of the system, and methods to control
+    device specific parameters such as logging, alarms, and storage. This lean version is designed to be run locally.
+    '''
 
     def __init__(self):
         self.current_state = "Initialized"
         self.capturing = False
         self.model = None
         self.capture_mode = 'cv2'
+        self.capture_device = 0
+        self.preview = False
 
         self.alarm_cases = []
+        self.save_cases = []
+
+        logging.info("LVP Initialized")
 
     def start_capture(self):
         self.capturing = True
+
+        if self.capture_mode is 'cv2':
+            if self.preview:
+                cv2.namedWindow("preview")
+            vc = cv2.VideoCapture(0)
+
+            if vc.isOpened():  # try to get the first frame
+                rval, frame = vc.read()
+            else:
+                rval = False
+
+            set_resolution(vc, 1920, 1080)
+
+            logging.info("Video capture started")
+
+            while rval:
+                rval, frame = vc.read()
+                original_frame = frame.copy()
+
+                self.frame_loop(frame)
+
+                if self.preview:
+                    cv2.imshow("preview", frame)
+
+                key = cv2.waitKey(20)
+
+                if key == 27:  # exit on ESC
+                    self.stop_capture()
+
+                if self.capturing is False:
+                    break
 
     def set_test_case(self):
         self.set_model(ResNet50(weights='imagenet'))
 
     def stop_capture(self):
         self.capturing = False
+        cv2.destroyWindow("preview")
 
     def set_model(self, keras_model):
         self.model = keras_model
 
+    def frame_loop(self, frame):
+        prediction = self.predict_top_class(self.image_from_memory(frame))
+
+        if self.has_alarm(prediction):
+            logging.info("Alarm detected for: ", prediction[1])
+
+        if self.has_save_flag(prediction):
+            logging.info("File save flag detected for: ", prediction[1])
+            if not os.path.isdir(str(prediction[1] + '/')):
+                os.makedirs(str(prediction[1] + '/'))
+                logging.info("No directory found, creating directory for ", prediction[1])
+            file_name = str(prediction[1] + '/' + time.strftime("%Y%m%d-%H%M%S") + ".jpg")
+            cv2.imwrite(file_name, frame)
+
     def set_alarm_case(self, alarm_case):
         self.alarm_cases.append(alarm_case)
 
-    def load_image(self, image_path):
+    def set_file_save_case(self, file_save_case):
+        self.save_cases.append(file_save_case)
+
+    def image_from_file(self, image_path):
         img = image.load_img(image_path, target_size=self.get_model_resolution())
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
@@ -41,11 +102,33 @@ class LeanVisionProcessor():
 
         return x
 
-    def has_alarm(self, image_to_check):
-        prediction = self.predict_top_classes(image_to_check, num_of_classes=1)[0]
+    def image_from_memory(self, img):
+        img = cv2.resize(img, self.get_model_resolution())
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        x = preprocess_input(x)
+
+        return x
+
+    def has_alarm(self, prediction_to_check):
+        prediction = prediction_to_check
 
         for alarm in self.alarm_cases:
-            return alarm in prediction
+            if alarm in prediction:
+                return True
+                break
+            else:
+                return False
+
+    def has_save_flag(self, prediction_to_check):
+        prediction = prediction_to_check
+
+        for flag in self.save_cases:
+            if flag in prediction:
+                return True
+                break
+            else:
+                return False
 
     def get_model_resolution(self):
         s = self.model.inputs[0].get_shape()

@@ -1,3 +1,5 @@
+import cv2
+
 def get_answer():
     """Get an answer."""
     return True
