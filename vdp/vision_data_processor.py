@@ -291,13 +291,14 @@ class VisionDataProcessor:
         # Create your own input format (here 3x200x200)
         input = Input(shape=self.input_shape, name='image_input')
 
+
+
         # Use the generated model
         output_vgg16_conv = model_vgg16_conv(input)
 
         # Add the fully-connected layers
         x = Flatten(name='flatten')(output_vgg16_conv)
-        x = Dense(4096, activation='relu', name='fc1')(x)
-        x = Dense(4096, activation='relu', name='fc2')(x)
+        x = Dense(1000, activation='relu', name='fc1')(x)
         x = Dense(self.configs.nb_classes, activation='softmax', name='predictions')(x)
 
         # Create your own model
@@ -308,9 +309,12 @@ class VisionDataProcessor:
         # In the summary, weights and layers from VGG part will be hidden, but they will be fit during the training
         my_model.summary()
 
-        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
+        sgd = optimizers.SGD(lr=0.0001, decay=1e-6, momentum=1.1, nesterov=True)
 
-        self.model.compile(optimizer=sgd,#'Nadam',
+        for layer in self.model.layers[:15]:
+            layer.trainable = False
+
+        self.model.compile(optimizer='Nadam',
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
 
@@ -362,15 +366,16 @@ class VisionDataProcessor:
     def create_simple_categorical_model(self):
 
         model = Sequential()
-        model.add(self.conv2DReluBatchNorm(64,4,4,self.input_shape))
-        ''' model.add(Conv2D(64, (4, 4),
+        model.add(ZeroPadding2D((1, 1),
+                                input_shape=self.input_shape))
+        model.add(BatchNormalization())
+        model.add(Conv2D(6, (3, 3),
                          padding='same',
                          data_format='channels_last',
-                         strides=1,
-                         input_shape=self.input_shape))'''
+                         strides=1))
         model.add(Activation('relu'))
         model.add(ZeroPadding2D((1, 1)))
-        model.add(Conv2D(64, (3, 3), activation='relu'))
+        model.add(Conv2D(64, (12, 12), activation='relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(BatchNormalization())
 
@@ -390,17 +395,14 @@ class VisionDataProcessor:
         model.add(Flatten())
         model.add(Dense(2028))
         model.add(Activation('relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(2028))
-        model.add(Activation('relu'))
-        model.add(Dropout(0.5))
+        model.add(Dropout(0.2))
         model.add(Dense(self.configs.nb_classes))
         model.add(Activation('softmax'))
 
         if self.configs.print_summary:
             model.summary()
 
-        sgd = optimizers.SGD(lr=0.05, decay=1e-6, momentum=1.1, nesterov=True)
+        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=1.1, nesterov=True)
 
         model.compile(optimizer=sgd,#'Nadam',
                       loss='categorical_crossentropy',
