@@ -363,6 +363,9 @@ class VisionDataProcessor:
               
         self.model = model
 
+    def load_model_from_file(self, filename):
+        self.model = load_model(filename)
+
     def create_simple_categorical_model(self):
 
         model = Sequential()
@@ -405,6 +408,50 @@ class VisionDataProcessor:
         sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=1.1, nesterov=True)
 
         model.compile(optimizer=sgd,#'Nadam',
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
+
+        self.model = model
+
+    def create_flat_2cv_2fc_model(self):
+
+        model = Sequential()
+        model.add(ZeroPadding2D((1, 1),
+                                input_shape=self.input_shape))
+        model.add(BatchNormalization())
+        model.add(Conv2D(6, (3, 3),
+                         padding='same',
+                         data_format='channels_last',
+                         strides=2))
+        model.add(Activation('relu'))
+        model.add(ZeroPadding2D((1, 1)))
+        model.add(Conv2D(32, (12, 12), activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(BatchNormalization())
+
+        model.add(ZeroPadding2D((1, 1)))
+        model.add(Conv2D(64, (12, 12), activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(BatchNormalization())
+
+        model.add(ZeroPadding2D((1, 1)))
+        model.add(Conv2D(64, (12, 12), activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(BatchNormalization())
+
+        model.add(Flatten())
+        model.add(Dense(25))
+        model.add(Activation('relu'))
+        model.add(Dropout(0.35))
+        model.add(Dense(self.configs.nb_classes))
+        model.add(Activation('softmax'))
+
+        if self.configs.print_summary:
+            model.summary()
+
+        sgd = optimizers.SGD(lr=0.01, decay=1e-6, momentum=1.1, nesterov=True)
+
+        model.compile(optimizer='Nadam',
                       loss='categorical_crossentropy',
                       metrics=['accuracy'])
 

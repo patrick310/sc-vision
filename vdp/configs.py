@@ -73,23 +73,23 @@ class ConfigManager:
 
         self.shear_range = 0
         self.zoom_range = 0
-        self.zca_whitening = False
-        self.rotation_range = 0
-        self.width_shift_range = 0
-        self.height_shift_range = 0
-        self.vertical_flip = False
-        self.horizontal_flip = False
-        self.color_mode = 'rgb'
+        self.zca_whitening = True
+        self.rotation_range = 3
+        self.width_shift_range = .01
+        self.height_shift_range = .01
+        self.vertical_flip = True
+        self.horizontal_flip = True
+        self.color_mode = 'grayscale'
         self.class_mode = 'categorical'
         self.fill_mode = 'nearest'
-        self.nb_test_images = 1000
+        self.nb_test_images = 1300
         self.train_dir = 'BumperModel/training'
         self.nb_val_images = 150
         self.val_dir = 'BumperModel/validation'
 
-        self.batch_size = 1
+        self.batch_size = 24
         self.val_batch_size = 5
-        self.nb_epoch = 100
+        self.nb_epoch = 10
         self.verbose = 1
         self.print_summary = True
 

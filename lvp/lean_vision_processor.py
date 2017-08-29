@@ -1,5 +1,6 @@
 from keras.applications.resnet50 import ResNet50
 from keras.preprocessing import image
+from keras.models import load_model
 from keras.applications.resnet50 import preprocess_input, decode_predictions
 
 import numpy as np
@@ -27,6 +28,9 @@ class LeanVisionProcessor:
 
         self.alarm_cases = []
         self.save_cases = []
+
+        self.classes = []
+        self.set_classes()
 
         logging.info("LVP Initialized")
 
@@ -72,7 +76,13 @@ class LeanVisionProcessor:
         cv2.destroyWindow("preview")
 
     def set_model(self, keras_model):
-        self.model = keras_model
+        self.model = load_model(keras_model)
+
+    def set_classes(self, class_dictionary=None):
+        self.classes = class_dictionary
+        self.classes = {'vehicle_background': 4, 'between_cars': 3, '1bolt_inner': 0, '2bolt': 2, '1bolt_outer': 1}
+
+        logging.info("Classes set to " + str(self.classes))
 
     def frame_loop(self, frame):
         prediction = self.predict_top_class(self.image_from_memory(frame))

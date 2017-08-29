@@ -12,10 +12,10 @@ def deploy():
 
 def train():
     process = VisionDataProcessor()
-    process.create_simple_categorical_model()
+    process.create_flat_2cv_2fc_model()
     process.fit_model()
     process.save_model_to_file()
     process.plot_model_history()
 
 if __name__ == '__main__':
-    train()
+    deploy()
