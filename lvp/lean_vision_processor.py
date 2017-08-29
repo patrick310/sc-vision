@@ -32,6 +32,8 @@ class LeanVisionProcessor:
         self.classes = []
         self.set_classes()
 
+        self.get_model_color_mode()
+
         logging.info("LVP Initialized")
 
     def start_capture(self):
@@ -55,6 +57,9 @@ class LeanVisionProcessor:
                 rval, frame = vc.read()
                 original_frame = frame.copy()
 
+                if self.color_mode is 'grayscale':
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
                 self.frame_loop(frame)
 
                 if self.preview:
@@ -76,7 +81,7 @@ class LeanVisionProcessor:
         cv2.destroyWindow("preview")
 
     def set_model(self, keras_model):
-        self.model = load_model(keras_model)
+        self.model = keras_model
 
     def set_classes(self, class_dictionary=None):
         self.classes = class_dictionary
@@ -144,6 +149,20 @@ class LeanVisionProcessor:
         s = self.model.inputs[0].get_shape()
         return tuple([s[i].value for i in range(0, len(s))])[1:3]
 
+    def get_model_color_mode(self):
+        s = self.model.inputs[0].get_shape()
+        s = tuple([s[i].value for i in range(0, len(s))])[3:4]
+        s = s[0]
+
+        if s is 3:
+            self.color_mode = "rgb"
+
+        elif s is 1:
+            self.color_mode = "grayscale"
+
+        else:
+            raise ReferenceError
+
     def predict_top_classes(self, pp_image, num_of_classes=3):
         model = self.model
 
@@ -156,5 +175,6 @@ class LeanVisionProcessor:
 
 if __name__ == '__main__':
     test = LeanVisionProcessor()
-    test.set_model(ResNet50(weights='imagenet'))
+    test.set_test_case()
+    print(test.get_model_color_mode())
 
