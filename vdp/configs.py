@@ -79,7 +79,7 @@ class ConfigManager:
         self.height_shift_range = .01
         self.vertical_flip = True
         self.horizontal_flip = True
-        self.color_mode = 'grayscale'
+        self.color_mode = 'rgb'
         self.class_mode = 'categorical'
         self.fill_mode = 'nearest'
         self.nb_test_images = 1300
@@ -87,9 +87,9 @@ class ConfigManager:
         self.nb_val_images = 150
         self.val_dir = 'BumperModel/validation'
 
-        self.batch_size = 24
+        self.batch_size = 5
         self.val_batch_size = 5
-        self.nb_epoch = 10
+        self.nb_epoch = 1
         self.verbose = 1
         self.print_summary = True
 

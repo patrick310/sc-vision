@@ -32,7 +32,6 @@ class LeanVisionProcessor:
         self.classes = []
         self.set_classes()
 
-        self.get_model_color_mode()
 
         logging.info("LVP Initialized")
 

@@ -18,4 +18,4 @@ def train():
     process.plot_model_history()
 
 if __name__ == '__main__':
-    deploy()
+    train()
