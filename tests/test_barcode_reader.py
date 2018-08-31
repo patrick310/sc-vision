@@ -16,13 +16,13 @@ class BarcodeTestSuite(unittest.TestCase):
         self.assertIsNotNone(cv2.imread(positive_image))
 
     def test_returns_none_if_no_label(self):
-        self.assertIsNone(None)
+        self.assertIsNone(read_production_number_from_image(negative_image))
 
     def test_returns_number_from_barcode(self):
-        self.assertIsNotNone(read_production_number_from_image(negative_image))
+        self.assertIsNotNone(read_production_number_from_image(positive_image))
 
     def test_can_find_barcode_in_image(self):
-        self.assertIsNotNone(is_label_in_image(cv2.imread(negative_image)))
+        self.assertIsNotNone(is_label_in_image(cv2.imread(positive_image)))
 
 
 if __name__ == '__main__':

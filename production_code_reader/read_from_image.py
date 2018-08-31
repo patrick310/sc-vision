@@ -4,8 +4,7 @@ import numpy as np
 
 
 def read_production_number_from_image(image):
-    """ Returns the production number of a vehicle from an image of
-     the barcode.
+    """ Returns the production number of a vehicle from an image including a barcode.
 
 
     Args:
@@ -22,16 +21,22 @@ def read_production_number_from_image(image):
         """
     if isinstance(image, str):
         image = cv2.imread(image)
-
     img = image
+    num_zbar = number_from_zbar(img)
+    print("zbar initial number " + str(num_zbar))
+
     if number_from_zbar(img):
+        print("main loop, barcode detected")
+
+        if type(num_zbar) is None or type(num_zbar) is False:
+            print("major error! How did you get here with a None?")
+        print("main loop " + num_zbar + " was the number after we pull from zbar")
+        cv2.imwrite(str(num_zbar) + ".jpg", img)
         return number_from_zbar(img)
 
-    if locate_label_in_image(image) is not None:
-        print("There is a label!")
-        label_cropped = four_point_transform(img, locate_label_in_image(img))
-        cv2.imwrite('cropped_label.jpg', label_cropped)
-        return True
+    #if locate_label_in_image(image) is not None:
+    #    label_cropped = four_point_transform(img, locate_label_in_image(img))
+    #   return True
 
     else:
         return None
@@ -43,6 +48,7 @@ def number_from_zbar(image):
     """Uses Zbar to identify, read, and return the first value from a barcode found in an image"""
 
     barcode_data = None
+    production_number = False
     barcodes = pyzbar.decode(image)
 
     # loop over the detected barcodes
@@ -55,6 +61,8 @@ def number_from_zbar(image):
         # the barcode data is a bytes object so if we want to draw it on
         # our output image we need to convert it to a string first
         barcode_data = barcode.data.decode("utf-8")
+        # TODO make function only look for code128 barcodes
+
         barcodeType = barcode.type
 
         # draw the barcode data and barcode type on the image
@@ -63,9 +71,14 @@ def number_from_zbar(image):
                     0.5, (0, 0, 255), 2)
 
         # print the barcode type and data to the terminal
-        print("[INFO] Found {} barcode: {}".format(barcodeType, barcode_data))
 
-    return barcode_data
+        if len(barcode_data.split()[0]) == 8:
+            print("We found a barcode ")
+            production_number = barcode_data.split()[0]
+            print(production_number)
+            return str(production_number)
+
+        print("[INFO] Found {} barcode: {}".format(barcodeType, barcode_data))
 
 
 def order_points(pts):
@@ -79,7 +92,6 @@ def order_points(pts):
         pts = pts.split()
     pts = np.asarray(pts).reshape((4,2))
     rect = np.zeros((4, 2), dtype="float32")
-    print(pts)
 
     s = pts.sum(axis=1)
     rect[0] = pts[np.argmin(s)]
@@ -139,7 +151,6 @@ def locate_label_in_image(image):
             shape = shape_detector(c)
 
             if shape == "label":
-                print(points_of_label(c))
                 return points_of_label(c)
             else:
                 return None
@@ -156,10 +167,9 @@ def is_label_in_image(image):
 
     # loop over the contours
     reduced_list = [c for c in cnts if is_label(c)]
-    print(len(reduced_list))
 
     if len(reduced_list) < 1:
-        return "No label found"
+        return False
     else:
         for c in reduced_list:
             # compute the center of the contour, then detect the name of the
