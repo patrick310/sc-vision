@@ -12,7 +12,6 @@ if __name__ == '__main__':
     while (1):
         _, frame = cap.read()
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
         lower_red = np.array([30, 150, 50])
         upper_red = np.array([255, 255, 180])
 
