@@ -18,7 +18,6 @@ if __name__ == '__main__':
 
         mask = cv2.inRange(hsv, lower_red, upper_red)
         res = cv2.bitwise_and(frame, frame, mask=mask)
-
         cv2.imshow('Original', frame)
         edges = cv2.Canny(frame, 10,200)
         cv2.imshow('Edges', edges)
