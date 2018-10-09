@@ -4,6 +4,7 @@ from lvp.lean_vision_processor import LeanVisionProcessor
 
 import unittest
 
+path_to_test_negative_image = 'negative.jpg'
 
 class AdvancedTestSuite(unittest.TestCase):
     """Advanced test cases."""
@@ -34,7 +35,6 @@ class AdvancedTestSuite(unittest.TestCase):
 
     def test_model_saves_files_with_flags(self):
         self.lvp.set_file_save_case('African_elephant')
-
 
 if __name__ == '__main__':
     unittest.main()

@@ -67,29 +67,29 @@ class ConfigManager:
 
     def load_default_parameters(self):
         self.nb_classes = 5
-        self.img_width = 32
-        self.img_height = 32
+        self.img_width = 300
+        self.img_height = 300
         self.model_save_name = 'myModel.h5'
 
         self.shear_range = 0
         self.zoom_range = 0
-        self.zca_whitening = False
-        self.rotation_range = 0
-        self.width_shift_range = 0
-        self.height_shift_range = 0
-        self.vertical_flip = False
-        self.horizontal_flip = False
-        self.color_mode = 'grayscale'
+        self.zca_whitening = True
+        self.rotation_range = 3
+        self.width_shift_range = .01
+        self.height_shift_range = .01
+        self.vertical_flip = True
+        self.horizontal_flip = True
+        self.color_mode = 'rgb'
         self.class_mode = 'categorical'
         self.fill_mode = 'nearest'
-        self.nb_test_images = 300
-        self.train_dir = 'bumperClassifier/training'
-        self.nb_val_images = 100
-        self.val_dir = 'bumperClassifier/validation'
+        self.nb_test_images = 1300
+        self.train_dir = 'BumperModel/training'
+        self.nb_val_images = 150
+        self.val_dir = 'BumperModel/validation'
 
-        self.batch_size = 15
+        self.batch_size = 5
         self.val_batch_size = 5
-        self.nb_epoch = 15
+        self.nb_epoch = 1
         self.verbose = 1
         self.print_summary = True
 
