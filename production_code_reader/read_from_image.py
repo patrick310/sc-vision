@@ -4,6 +4,12 @@ import numpy as np
 
 
 def read_production_number_from_image(image):
+
+
+
+
+
+
     """ Returns the production number of a vehicle from an image including a barcode.
 
 
@@ -25,32 +31,32 @@ def read_production_number_from_image(image):
     num_zbar = number_from_zbar(img)
     print("zbar initial number " + str(num_zbar))
 
-    if number_from_zbar(img):
+    if (len(str(number_from_zbar(image)))==8):
         print("main loop, barcode detected")
 
         if type(num_zbar) is None or type(num_zbar) is False:
             print("major error! How did you get here with a None?")
         print("main loop " + num_zbar + " was the number after we pull from zbar")
         cv2.imwrite(str(num_zbar) + ".jpg", img)
-        return number_from_zbar(img)
+        return str(number_from_zbar(img))
 
     #if locate_label_in_image(image) is not None:
     #    label_cropped = four_point_transform(img, locate_label_in_image(img))
     #   return True
 
     else:
-        return None
+        print("read_production_number_from_image is returning false")
+        return False
 
     # cropped_labels = [four_point_transform(coordinate) for coordinate in detected_labels]
 
 
 def number_from_zbar(image):
     """Uses Zbar to identify, read, and return the first value from a barcode found in an image"""
-
     barcode_data = None
-    production_number = False
+    production_number = None
     barcodes = pyzbar.decode(image)
-
+    print("Barcodes collected")
     # loop over the detected barcodes
     for barcode in barcodes:
         # extract the bounding box location of the barcode and draw the
@@ -76,6 +82,8 @@ def number_from_zbar(image):
             print("We found a barcode ")
             production_number = barcode_data.split()[0]
             print(production_number)
+            len_pro_num = len(str(production_number))
+            print(str(len_pro_num))
             return str(production_number)
 
         print("[INFO] Found {} barcode: {}".format(barcodeType, barcode_data))
