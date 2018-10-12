@@ -1,11 +1,45 @@
-import cv2
-import os
-import numpy as np
-from pyzbar import pyzbar
-import time
-import os
-import sys
-from numpy import sum
+try:
+    import cv2
+except:
+    import pip
+    pip.main('install', 'cv2')
+    import cv2
+
+try:
+    import os
+except:
+    import pip
+    pip.main('install', 'os')
+    import cv2
+
+try:
+    import numpy as np
+except:
+    import pip
+    pip.main('install', 'numpy')
+    import numpy as np
+
+try:
+    from pyzbar import pyzbar
+except:
+    import pip
+    pip.main('install', 'pyzbar')
+    from pyzbar import pyzbar
+
+try:
+    import time
+except:
+    import pip
+    pip.main('install', 'time')
+    import time
+
+try:
+    import os
+except:
+    import pip
+    pip.main('install', 'os')
+    import os
+
 
 def cam_setup_settings(cam):
 
