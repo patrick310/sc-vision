@@ -11,7 +11,7 @@ from PyQt5.uic import loadUi
 import sys
 import logging
 import time
-from testreal import Deployment, VideoCapture
+# from testreal import Deployment, VideoCapture
 from vision_gui import Ui_MainWindow
 import os
 import filter_file

@@ -5,7 +5,7 @@ import numpy as np
 import sys
 import logging
 import time
-from testreal import Deployment, VideoCapture
+# from testreal import Deployment, VideoCapture
 import keyboard
 from vision_sys_gui import *
 from vision_gui import *
